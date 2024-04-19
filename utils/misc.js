@@ -1,13 +1,3 @@
-let RDKit
-
-export async function initRDKit() {
-  RDKit = await initRDKitModule()
-}
-
-export function getRDKit() {
-  return RDKit
-}
-
 // Fisher-Yates Sorting Algorithm
 // https://www.freecodecamp.org/news/how-to-shuffle-an-array-of-items-using-javascript-or-typescript/
 export function shuffleArray(array) {

@@ -1,4 +1,5 @@
-import { initRDKit, getRDKit, shuffleArray } from './utils.js'
+import { initRDKit, getRDKit } from '../utils/rdkit.js'
+import { shuffleArray } from '../utils/misc.js'
 
 function handleAnswerQuestion(type, currentGame, questionId, answer) {
   let answerObject = {

@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@rdkit/rdkit": "^2023.9.2-1.0.0"
+    "@rdkit/rdkit": "^2023.9.2-1.0.0",
+    "jsme-editor": "^2023.7.31"
   }
 }

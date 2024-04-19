@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="../../../node_modules/jsme-editor/jsme.nocache.js"></script>
+    <script src="../../../node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
+    <script src="./structure_questions.js" type="module" defer></script>
+    <link rel="stylesheet" href="structure_questions.css" />
+  </head>
+  <body>
+    <main>
+      <section id="add-structureQ-container">
+        <h2>Add New Structure Question</h2>
+        <div id="new-structureQ-container">
+          <div id="molecule-input-container"></div>
+          <div class="options-container">
+            <label for="new-answer">answer</label>
+            <input class="new-input" id="new-answer" type="text" />
+
+            <label>Incorrect Answers</label>
+            <input class="new-input" id="new-incorrect1" type="text" />
+            <input class="new-input" id="new-incorrect2" type="text" />
+            <input class="new-input" id="new-incorrect3" type="text" />
+          </div>
+          <div class="buttons-container">
+            <button id="new-editBtn" disabled>Edit</button>
+            <button id="new-submitBtn">Submit</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="existing-structureQ-container">
+        <h2>Modify or Delete Structure Question</h2>
+        <ul id="existing-structureQ-list"></ul>
+        <!-- render dynamically -->
+      </section>
+      <section id="jsme-storage">
+        <div id="jsme_container"></div>
+      </section>
+    </main>
+  </body>
+</html>
