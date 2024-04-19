@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="./admin_users.js" defer></script>
+    <link rel="stylesheet" href="admin_users.css" />
+  </head>
+  <body>
+    <a href="../admin.html">BACK</a>
+    <h1>Admin Users Page</h1>
+    <h3>Users table</h3>
+    <!-- doesn't need to be in a form since we are submitting using JavaScript -->
+    <h2>Add New User</h2>
+    <form>
+      <label for="username">Username</label>
+      <input type="text" id="username" />
+      <label for="password">Password</label>
+      <input type="text" id="password" />
+      <label for="admin">Admin?</label>
+      <input type="checkbox" id="admin" />
+      <button type="button" id="addUserBtn">Add User</button>
+    </form>
+    <h2>Table of Existing Users</h2>
+    <table>
+      <thead>
+        <tr>
+          <td>id</td>
+          <td>username</td>
+          <td>date joined</td>
+          <td>admin?</td>
+          <td>DEL</td>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <!-- dynamically add data here -->
+      </tbody>
+    </table>
+  </body>
+</html>

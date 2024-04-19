@@ -1,0 +1,64 @@
+CREATE TABLE Users (
+    userId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(20) NOT NULL,
+    password TEXT NOT NULL,
+    dateJoined DATE DEFAULT CURRENT_DATE,
+    isAdmin BOOLEAN
+);
+
+INSERT INTO Users (username, password, isAdmin)
+VALUES
+("chris", "fishandchips", 0);
+
+INSERT INTO Users (username, password, isAdmin)
+VALUES
+("admin", "password", 1);
+
+UPDATE Users
+SET password = "$2y$10$zoAW4SY13p1BQz0HD81Hte8Pi6AbDSWdQef4bvqZawJEPtoMR5pKS"
+WHERE userId = 1;
+
+UPDATE Users
+SET password = "$2y$10$0DTKrN1.96bSniLN85bQoeNjF8bVEUsMAKlhyxg9P/GWxn5gDQGr."
+WHERE userId = 2;
+
+CREATE TABLE Scores (
+    gameId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    userId INT NOT NULL,
+    score INT NOT NULL,
+    attemptDate DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (userId) REFERENCES Users(userId)
+);
+
+INSERT INTO Scores (userId, score)
+VALUES
+(1, 10), (1, 5), (1, 7), (1, 6);
+
+SELECT score, attemptDate
+FROM Scores
+JOIN Users ON Users.userId = Scores.userId
+WHERE Users.username = "chris";
+
+CREATE TABLE StructureQ (
+    structureId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    molecule TEXT NOT NULL,
+    answer VARCHAR(30) NOT NULL,
+    incorrect1 VARCHAR(30) NOT NULL,
+    incorrect2 VARCHAR(30) NOT NULL,
+    incorrect3 VARCHAR(30) NOT NULL,
+    difficulty int NOT NULL
+);
+
+INSERT INTO StructureQ (molecule, answer, incorrect1, incorrect2, incorrect3, difficulty)
+VALUES
+('c1ccccc1', 'benzene', 'toluene', 'methanol', 'ethanol', 1),
+('CCO', 'ethanol', 'methanol', 'propanol', 'butanol', 1),
+('CN', 'methylamine', 'ethylamine', 'propylamine', 'butylamine', 1),
+('C1CCCC1', 'cyclopentane', 'cyclopentene', 'cyclohexane', 'cyclohexene', 1),
+('CN4CC[C@]23c1c5ccc(O)c1O[C@H]2[C@@H](O)C=C[C@H]3[C@H]4C5', 'morphine', 'aspirin', 'codein', 'heroin', 1),
+('CC(=O)Oc1ccc2C[C@@H]5[C@@H]3C=C[C@H](OC(C)=O)[C@@H]4Oc1c2[C@]34CCN5C', 'heroin', 'morphine', 'oxycodone', 'cocaine', 1),
+('COC(=O)[C@H]2[C@@H](OC(=O)c1ccccc1)C[C@@H]3CC[C@H]2N3C', 'cocaine', 'dopamine', 'caffeine', 'ethanol', 1),
+('Cn1cnc2c1c(=O)n(C)c(=O)n2C', 'caffeine', 'ethanol', 'cocaine', 'heroin', 1);
+
+SELECT molecule, answer, incorrect1, incorrect2, incorrect3
+FROM StructureQ;
