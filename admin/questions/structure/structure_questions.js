@@ -1,214 +1,7 @@
-import { initializeJsme, getJsme, hideJsme, getJsmeApplet } from '../../../utils/jsme.js'
-import { initRDKit, getRDKit } from '../../../utils/rdkit.js'
+import { getRDKit, initRDKit } from '../../../utils/rdkit.js'
+import { initializeJsme, getJsme, getJsmeApplet, hideJsme } from '../../../utils/jsme.js'
 
-/**
- *  FLOW
- *
- * Add new in html, never gets re-rendered
- * Starts off active
- *
- * On load, GET existing, render
- * Starts off inactive
- *
- * 1) Fill out new, submit PUT - INSERT
- *
- * 2) Click edit (id)
- *      new becomes inactive
- *      (id) becomes active
- *      fill out (id), submit PUT - UPDATE
- *
- * 3) Click delete (id), submit DELETE
- *
- */
-
-// use id to perform fetch delete on an existing question
-// fetch sends back current data, calls re-render with that data
-async function handleDeleteItem(id) {
-  console.log('deleting: ', id)
-  const response = await fetch(`structure_questions.php?structureId=${id}`, {
-    method: 'DELETE',
-  })
-
-  if (!response.ok) {
-    console.log('something went wrong...')
-    return
-  }
-
-  const json = await response.json()
-
-  console.log(json)
-
-  // call render with new data
-  renderQuestions(json.data, true)
-}
-
-// use id to perform fetch put on a a new or existing question
-// fetch sends back current data, calls re-render with that data
-async function putStructureQ(id) {
-  console.log(id)
-  const jsmeApplet = getJsmeApplet()
-
-  // don't allow submit if no structure
-  if (!jsmeApplet.smiles()) return
-
-  // structureid will be undefined for submitting a new question
-  // but will have an id for modifying an existing question
-  // php will recognize this and either call INSERT INTO or UPDATE depending
-  const structureQData = {
-    structureId: id,
-    molecule: jsmeApplet.smiles(),
-    answer: document.getElementById(id ? `q${id}-answer` : 'new-answer').value,
-    incorrect1: document.getElementById(id ? `q${id}-incorrect1` : 'new-incorrect1').value,
-    incorrect2: document.getElementById(id ? `q${id}-incorrect2` : 'new-incorrect2').value,
-    incorrect3: document.getElementById(id ? `q${id}-incorrect3` : 'new-incorrect3').value,
-  }
-
-  // don't allow submit if not all input fields have data
-  if (
-    !structureQData.answer ||
-    !structureQData.incorrect1 ||
-    !structureQData.incorrect2 ||
-    !structureQData.incorrect3
-  )
-    return
-
-  // don't allow submit if an incorrect answer is the same as the real answer
-  if (
-    structureQData.answer === structureQData.incorrect1 ||
-    structureQData.answer === structureQData.incorrect2 ||
-    structureQData.answer === structureQData.incorrect3
-  )
-    return
-
-  const response = await fetch('structure_questions.php', {
-    method: 'PUT',
-    body: JSON.stringify(structureQData),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    console.log('something went wrong...')
-    return
-  }
-
-  const json = await response.json()
-
-  console.log(json)
-
-  // call render with new data
-  renderQuestions(json.data, true)
-}
-
-// enables all the input fields for a given question
-// disables the new structure area
-function handleEditItem({ qData, id, molecule }) {
-  // by calling render after pressing edit buttons, everything else will reset which looks nice
-  renderQuestions(qData, false)
-
-  const moleculeInputContainer = document.getElementById(`q${id}-molecule`)
-  const inputFields = document.querySelectorAll(`.q${id}-input`)
-
-  // remove the SVG
-  moleculeInputContainer.innerHTML = ''
-
-  // move JSME to where the SVG was
-  moleculeInputContainer.appendChild(getJsme())
-
-  // recreate the molecule and insert it in JSME
-  getJsmeApplet().readGenericMolecularInput(molecule)
-
-  disableNewStructure()
-
-  inputFields.forEach((field) => {
-    field.disabled = false
-  })
-
-  const submitBtn = document.getElementById(`q${id}-submitBtn`)
-
-  submitBtn.disabled = false
-  submitBtn.addEventListener('click', () => putStructureQ(id))
-}
-
-function disableNewStructure() {
-  // enable new structure edit button
-  document.getElementById('new-editBtn').disabled = false
-
-  // prevent new structure submitting
-  document.getElementById('new-submitBtn').disabled = true
-
-  const inputFields = document.querySelectorAll(`.new-input`)
-
-  inputFields.forEach((field) => {
-    field.disabled = true
-  })
-}
-
-// runs before rendering the items when the new structure fields should be active
-function resetNewStructure() {
-  document.getElementById('molecule-input-container').appendChild(getJsme())
-  document.getElementById('new-editBtn').disabled = true
-  document.getElementById('new-submitBtn').disabled = false
-  getJsmeApplet().reset()
-
-  const inputFields = document.querySelectorAll(`.new-input`)
-
-  inputFields.forEach((field) => {
-    field.disabled = false
-  })
-}
-
-// display the data from the database to the screen, and set up the event listeners
-function renderQuestions(qData, isAddNew) {
-  // put the molecule editor in the add new structure area, or hide (for when editing questions)
-  if (isAddNew) {
-    resetNewStructure()
-  } else {
-    hideJsme()
-  }
-
-  // reset the page
-  const structureQList = document.getElementById('existing-structureQ-list')
-  structureQList.innerHTML = ''
-
-  const RDKit = getRDKit()
-
-  for (let i = 0; i < qData.length; i++) {
-    const moleculeSVG = RDKit.get_mol(qData[i].molecule).get_svg()
-    const newLiItem = document.createElement('li')
-    let template = `
-            <div id="q${qData[i].structureId}-molecule" class="svg-container">${moleculeSVG}</div>
-            <div class="options-container">
-                <label for="q${qData[i].structureId}-answer">answer</label>
-                <input class="q${qData[i].structureId}-input" id="q${qData[i].structureId}-answer" type="text" disabled value="${qData[i].answer}"/>
-
-                <label>Incorrect Answers</label>
-                <input class="q${qData[i].structureId}-input" id="q${qData[i].structureId}-incorrect1" type="text" disabled value="${qData[i].incorrect1}"/>
-                <input class="q${qData[i].structureId}-input" id="q${qData[i].structureId}-incorrect2" type="text" disabled value="${qData[i].incorrect2}"/>
-                <input class="q${qData[i].structureId}-input" id="q${qData[i].structureId}-incorrect3" type="text" disabled value="${qData[i].incorrect3}"/>
-            </div>
-            <div class="buttons-container">
-                <button id="q${qData[i].structureId}-editBtn">Edit</button>
-                <button id="q${qData[i].structureId}-submitBtn" disabled>Submit</button>
-                <button id="q${qData[i].structureId}-deleteBtn">X</button>
-            </div>
-    `
-    newLiItem.innerHTML = template
-    structureQList.appendChild(newLiItem)
-
-    document
-      .getElementById(`q${qData[i].structureId}-editBtn`)
-      .addEventListener('click', () =>
-        handleEditItem({ id: qData[i].structureId, molecule: qData[i].molecule, qData })
-      )
-
-    document
-      .getElementById(`q${qData[i].structureId}-deleteBtn`)
-      .addEventListener('click', () => handleDeleteItem(qData[i].structureId))
-  }
-}
-
+/* FETCH FUNCTIONS */
 async function getData() {
   const response = await fetch('structure_questions.php')
 
@@ -219,7 +12,293 @@ async function getData() {
 
   const json = await response.json()
 
-  console.log(json.data)
+  return json.data
+}
+
+async function handleSubmit(session) {
+  const { editData } = session.getState()
+
+  const response = await fetch('./structure_questions.php', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(editData),
+  })
+
+  if (!response.ok) {
+    console.log('something went wrong...')
+    return
+  }
+
+  const json = await response.json()
+
+  session.init(json.data)
+}
+
+async function handleDeleteItem(session, structureId) {
+  const response = await fetch(`structure_questions.php?structureId=${structureId}`, {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    console.log('something went wrong...')
+    return
+  }
+
+  const json = await response.json()
+
+  // call render with updated data
+  session.init(json.data)
+}
+
+/* RENDER FUNCTIONS */
+// will be "new" or the particular reactionId
+function renderEditable(session) {
+  const { editData, editRow } = session.getState()
+
+  hideJsme()
+  getJsmeApplet().reset()
+
+  const template = `
+  <div id="${editRow}-molecule-input-container"></div>
+  <div class="options-container">
+    <label for="${editRow}-answer">answer</label>
+    <input class="new-input" id="${editRow}-answer" type="text" value="${editData.answer}"/>
+
+    <label>Incorrect Answers</label>
+    <input class="new-input" id="${editRow}-incorrect1" type="text" value="${editData.incorrect1}"/>
+    <input class="new-input" id="${editRow}-incorrect2" type="text" value="${editData.incorrect2}"/>
+    <input class="new-input" id="${editRow}-incorrect3" type="text" value="${editData.incorrect3}"/>
+  </div>
+      ${
+        editRow === 'new'
+          ? `
+      <div class="buttons-container">
+        <button id="new-submitBtn">Submit</button>
+      </div>
+      `
+          : `
+      <div class="buttons-container">
+        <button id="${editRow}-editBtn" disabled>Edit</button>
+        <button id="${editRow}-submitBtn">Submit</button>
+        <button id="${editRow}-cancelBtn">Cancel</button>
+      </div>
+      `
+      }
+        `
+
+  document.getElementById(`${editRow}-structureQ-container`).innerHTML = template
+
+  /* SET UP JSME */
+  const moleculeInputContainer = document.getElementById(`${editRow}-molecule-input-container`)
+
+  // remove the SVG if present
+  moleculeInputContainer.innerHTML = ''
+
+  // move JSME to where the SVG was
+  moleculeInputContainer.appendChild(getJsme())
+
+  // recreate the molecule and insert it in JSME
+  getJsmeApplet().readGenericMolecularInput(editData.molecule)
+
+  /* EVENTS */
+  // set up events for the right-hand-side buttons (submit, cancel)
+  document
+    .getElementById(`${editRow}-submitBtn`)
+    .addEventListener('click', () => session.collectAndSubmit())
+
+  // list only buttons
+  if (editRow !== 'new') {
+    document
+      .getElementById(`${editRow}-cancelBtn`)
+      .addEventListener('click', () => session.handleClickRow('new'))
+  }
+}
+
+// the new input area is rendered with this function when an existing reaction is being edited
+function renderBigButton(session) {
+  const newStructureQContainer = document.getElementById('new-structureQ-container')
+
+  newStructureQContainer.style.display = 'block'
+
+  const template = `
+        <button id="new-editBtn">Click to create a new structure question</button>
+    `
+
+  newStructureQContainer.innerHTML = template
+
+  document
+    .getElementById(`new-editBtn`)
+    .addEventListener('click', () => session.handleClickRow('new'))
+}
+
+// will be "new" or the particular reactionId
+function renderReadOnly(session, qData) {
+  const moleculeSVG = getRDKit().get_mol(qData.molecule).get_svg()
+
+  const template = `
+  <div id="${qData.structureId}-molecule-input-container">${moleculeSVG}</div>
+  <div class="options-container">
+    <label for="${qData.structureId}-answer">answer</label>
+    <input class="new-input" id="${qData.structureId}-answer" type="text" value="${qData.answer}" disabled/>
+
+    <label>Incorrect Answers</label>
+    <input class="new-input" id="${qData.structureId}-incorrect1" type="text" value="${qData.incorrect1}" disabled/>
+    <input class="new-input" id="${qData.structureId}-incorrect2" type="text" value="${qData.incorrect2}" disabled/>
+    <input class="new-input" id="${qData.structureId}-incorrect3" type="text" value="${qData.incorrect3}" disabled/>
+  </div>
+
+      <div class="buttons-container">
+        <button id="${qData.structureId}-editBtn">Edit</button>
+        <button id="${qData.structureId}-submitBtn" disabled>Submit</button>
+        <button id="${qData.structureId}-deleteBtn">X</button>
+      </div>
+        `
+
+  document.getElementById(`${qData.structureId}-structureQ-container`).innerHTML = template
+
+  /* EVENTS */
+  // set up events for the right-hand-side buttons (submit, cancel)
+  document
+    .getElementById(`${qData.structureId}-editBtn`)
+    .addEventListener('click', () => session.handleClickRow(qData.structureId))
+
+  document
+    .getElementById(`${qData.structureId}-deleteBtn`)
+    .addEventListener('click', () => handleDeleteItem(session, qData.structureId))
+}
+
+/* CONTROLLER */
+function initCurrentSession() {
+  const blankData = {
+    molecule: '',
+    answer: '',
+    incorrect1: '',
+    incorrect2: '',
+    incorrect3: '',
+    difficulty: 1,
+  }
+
+  let currentSessionRef = ''
+  let editData = { ...blankData }
+  let editRow = 'new'
+  let existingData = []
+
+  const structureQList = document.getElementById('existing-structureQ-list')
+
+  // get data from input fields, validate it, send to submit function
+  function collectAndSubmit() {
+    // make a copy of reaction data object so no mutation
+    let modifiedData = { ...editData }
+
+    const jsmeApplet = getJsmeApplet()
+
+    // don't allow submit if no structure
+    if (!jsmeApplet.smiles()) return
+
+    // structureId will be undefined when submitting a new question
+    // but will have an id for modifying an existing question
+    // (this comes from {...editData}, which gets the id when edit is clicked)
+    // php will recognize this and either call INSERT INTO or UPDATE depending
+    modifiedData.molecule = jsmeApplet.smiles()
+    modifiedData.answer = document.getElementById(`${editRow}-answer`).value
+    modifiedData.incorrect1 = document.getElementById(`${editRow}-incorrect1`).value
+    modifiedData.incorrect2 = document.getElementById(`${editRow}-incorrect2`).value
+    modifiedData.incorrect3 = document.getElementById(`${editRow}-incorrect3`).value
+
+    // don't allow submit if not all input fields have data
+    if (
+      !modifiedData.answer ||
+      !modifiedData.incorrect1 ||
+      !modifiedData.incorrect2 ||
+      !modifiedData.incorrect3
+    ) {
+      alert('need to fill in all fields')
+      return
+    }
+
+    // don't allow submit if an incorrect answer is the same as the real answer
+    if (
+      modifiedData.answer === modifiedData.incorrect1 ||
+      modifiedData.answer === modifiedData.incorrect2 ||
+      modifiedData.answer === modifiedData.incorrect3
+    ) {
+      alert("can't have an incorrect response being the same as the correct one")
+      return
+    }
+
+    editData = modifiedData
+
+    handleSubmit(currentSessionRef)
+  }
+
+  function handleClickRow(clickedEditRow) {
+    editRow = clickedEditRow
+    if (clickedEditRow === 'new') {
+      editData = { ...blankData }
+    } else {
+      editData = existingData.find((data) => data.structureId === clickedEditRow)
+    }
+    renderAll()
+  }
+
+  function getState() {
+    return { editData, editRow, existingData }
+  }
+
+  function renderAll() {
+    // rendering the screen causes the scroll bar to momentarily disappear
+    // this means that after the scrollbar comes back, the items are in a different position
+    // can take the current position, then set it at the end of the function
+    const scrollPosition = document.documentElement.scrollTop
+
+    // reset new section back to grid if -> "block" when rendering as a big button
+    document.getElementById('new-structureQ-container').style.display = 'grid'
+
+    hideJsme()
+    // render new reaction section
+    if (editRow === 'new') {
+      renderEditable(currentSessionRef)
+    } else {
+      renderBigButton(currentSessionRef)
+    }
+
+    // render existing reaction list section
+    structureQList.innerHTML = ''
+
+    for (let i = 0; i < existingData.length; i++) {
+      // create an element in which to render the new data
+      const newLiItem = document.createElement('li')
+      newLiItem.id = `${existingData[i].structureId}-structureQ-container`
+      document.getElementById('existing-structureQ-list').appendChild(newLiItem)
+
+      if (existingData[i].structureId === editRow) {
+        renderEditable(currentSessionRef)
+      } else {
+        renderReadOnly(currentSessionRef, existingData[i])
+      }
+    }
+
+    document.documentElement.scrollTop = scrollPosition
+  }
+
+  function refreshNewInput() {
+    editData = { ...blankData }
+    editRow = 'new'
+  }
+
+  function init(existingQuestionData) {
+    existingData = existingQuestionData
+    refreshNewInput()
+    renderAll()
+  }
+
+  function storeSessionRef(currentSession) {
+    currentSessionRef = currentSession
+  }
+
+  return { storeSessionRef, init, handleClickRow, getState, collectAndSubmit }
 }
 
 async function init() {
@@ -227,18 +306,16 @@ async function init() {
 
   initializeJsme()
 
-  const structureQuestionsData = await getData()
+  const existingQData = await getData()
 
-  if (!structureQuestionsData) return
+  // create a closure for storing the data for the page
+  const currentSession = initCurrentSession()
 
-  renderQuestions(structureQuestionsData, true)
+  // need to pass the reference to the closure down the tree, so storing the reference in this step
+  currentSession.storeSessionRef(currentSession)
 
-  // set up buttons for new structure (edit, submit)
-  document
-    .getElementById('new-editBtn')
-    .addEventListener('click', () => renderQuestions(structureQuestionsData, true))
-
-  document.getElementById('new-submitBtn').addEventListener('click', () => putStructureQ())
+  // populate the closure with existing data, then render the initial screen
+  currentSession.init(existingQData)
 }
 
 onload = init

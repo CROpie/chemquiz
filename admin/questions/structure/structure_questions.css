@@ -28,3 +28,21 @@ li {
 input:disabled {
   border: none;
 }
+
+/* just want the big button container to have the same height as the add structure container */
+#new-structureQ-container {
+  height: 254px;
+}
+
+/* big button */
+#new-editBtn {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  background: transparent;
+  border: none;
+}
+
+#new-editBtn:hover {
+  background-color: ghostwhite;
+}

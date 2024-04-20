@@ -53,6 +53,7 @@ function handleGetData($conn, $sql_table, $response) {
 
     $query = "SELECT *
     FROM $sql_table
+    ORDER BY StructureId DESC
     ";
 
     $result = mysqli_query($conn, $query);

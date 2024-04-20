@@ -48,8 +48,6 @@ async function handleSubmit(session) {
     return
   }
 
-  console.log(editData)
-
   const response = await fetch('./reaction_questions.php', {
     method: 'PUT',
     headers: {
@@ -69,11 +67,9 @@ async function handleSubmit(session) {
 }
 
 /* RENDER FUNCTIONS */
-// will be "new" or the particular structureId
+// will be "new" or the particular reactionId
 function renderEditable(session) {
   const { editData, editRow, editCol } = session.getState()
-
-  console.log({ editData, editRow, editCol })
 
   hideJsme()
   getJsmeApplet().reset()
@@ -208,6 +204,7 @@ function renderEditMolecule(session) {
   document.getElementById(`save-btn`).addEventListener('click', () => session.saveInput())
 }
 
+// a condition being edited has a text input as well as 2 buttons: scrap & save
 function renderEditCondition(session) {
   const { editData, editRow, editCol } = session.getState()
 
@@ -404,6 +401,11 @@ function initCurrentSession() {
   }
 
   function renderAll() {
+    // rendering the screen causes the scroll bar to momentarily disappear
+    // this means that after the scrollbar comes back, the items are in a different position
+    // can take the current position, then set it at the end of the function
+    const scrollPosition = document.documentElement.scrollTop
+
     hideJsme()
     // render new reaction section
     if (editRow === 'new') {
@@ -427,6 +429,8 @@ function initCurrentSession() {
         renderReadOnly(currentSessionRef, existingData[i])
       }
     }
+
+    document.documentElement.scrollTop = scrollPosition
   }
 
   function init(existingQuestionData) {
