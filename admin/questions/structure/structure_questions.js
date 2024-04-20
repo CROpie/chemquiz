@@ -1,10 +1,28 @@
 import { initializeJsme, getJsme, hideJsme, getJsmeApplet } from '../../../utils/jsme.js'
 import { initRDKit, getRDKit } from '../../../utils/rdkit.js'
 
-function jsmeOnLoad() {
-  // have to have this function to stop jsme causing an error message appearing in the console
-}
+/**
+ *  FLOW
+ *
+ * Add new in html, never gets re-rendered
+ * Starts off active
+ *
+ * On load, GET existing, render
+ * Starts off inactive
+ *
+ * 1) Fill out new, submit PUT - INSERT
+ *
+ * 2) Click edit (id)
+ *      new becomes inactive
+ *      (id) becomes active
+ *      fill out (id), submit PUT - UPDATE
+ *
+ * 3) Click delete (id), submit DELETE
+ *
+ */
 
+// use id to perform fetch delete on an existing question
+// fetch sends back current data, calls re-render with that data
 async function handleDeleteItem(id) {
   console.log('deleting: ', id)
   const response = await fetch(`structure_questions.php?structureId=${id}`, {
@@ -24,6 +42,8 @@ async function handleDeleteItem(id) {
   renderQuestions(json.data, true)
 }
 
+// use id to perform fetch put on a a new or existing question
+// fetch sends back current data, calls re-render with that data
 async function putStructureQ(id) {
   console.log(id)
   const jsmeApplet = getJsmeApplet()
@@ -81,6 +101,8 @@ async function putStructureQ(id) {
   renderQuestions(json.data, true)
 }
 
+// enables all the input fields for a given question
+// disables the new structure area
 function handleEditItem({ qData, id, molecule }) {
   // by calling render after pressing edit buttons, everything else will reset which looks nice
   renderQuestions(qData, false)
@@ -123,6 +145,7 @@ function disableNewStructure() {
   })
 }
 
+// runs before rendering the items when the new structure fields should be active
 function resetNewStructure() {
   document.getElementById('molecule-input-container').appendChild(getJsme())
   document.getElementById('new-editBtn').disabled = true
@@ -136,6 +159,7 @@ function resetNewStructure() {
   })
 }
 
+// display the data from the database to the screen, and set up the event listeners
 function renderQuestions(qData, isAddNew) {
   // put the molecule editor in the add new structure area, or hide (for when editing questions)
   if (isAddNew) {
@@ -185,11 +209,7 @@ function renderQuestions(qData, isAddNew) {
   }
 }
 
-async function init() {
-  await initRDKit()
-
-  initializeJsme()
-
+async function getData() {
   const response = await fetch('structure_questions.php')
 
   if (!response.ok) {
@@ -199,14 +219,24 @@ async function init() {
 
   const json = await response.json()
 
-  console.log(json)
+  console.log(json.data)
+}
 
-  renderQuestions(json.data, true)
+async function init() {
+  await initRDKit()
 
-  // set up new structure edit button
+  initializeJsme()
+
+  const structureQuestionsData = await getData()
+
+  if (!structureQuestionsData) return
+
+  renderQuestions(structureQuestionsData, true)
+
+  // set up buttons for new structure (edit, submit)
   document
     .getElementById('new-editBtn')
-    .addEventListener('click', () => renderQuestions(json.data, true))
+    .addEventListener('click', () => renderQuestions(structureQuestionsData, true))
 
   document.getElementById('new-submitBtn').addEventListener('click', () => putStructureQ())
 }

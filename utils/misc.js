@@ -7,3 +7,19 @@ export function shuffleArray(array) {
   }
   return array
 }
+
+export function convertToChemicalFormula(chemical) {
+  const subPattern = /([A-Za-z])([0-9]*)/g
+  const supPattern = /([A-Za-z]+)([+\-])$/
+
+  let includeSubscript = chemical.replace(subPattern, (m, p1, p2) => {
+    if (p2 === '') return p1
+    return p1 + '<sub>' + p2 + '</sub>'
+  })
+
+  let includeSuperscript = includeSubscript.replace(supPattern, (m, p1, p2) => {
+    return p1 + '<sup>' + p2 + '</sup>'
+  })
+
+  return includeSuperscript
+}

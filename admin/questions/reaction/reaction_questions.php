@@ -2,7 +2,7 @@
 
 require_once ("../../../settings.php");
 $conn = @mysqli_connect($host, $user, $pwd, $sql_db);
-$sql_table = "StructureQ";
+$sql_table = "ReactionQ";
 
 $response = array(
     "success" => false,
@@ -53,6 +53,7 @@ function handleGetData($conn, $sql_table, $response) {
 
     $query = "SELECT *
     FROM $sql_table
+    ORDER BY ReactionId DESC
     ";
 
     $result = mysqli_query($conn, $query);
@@ -86,24 +87,27 @@ function handlePutData($conn, $sql_table, $response) {
     $jsonData = json_decode($data, true);
 
     // if adding a new question, this will be null
-    $structureId = $jsonData["structureId"];
+    $reactionId = $jsonData["reactionId"];
 
     $query = '';
 
-    if ($structureId) {
+    if ($reactionId) {
         $query = "UPDATE $sql_table
         SET 
-        molecule = '{$jsonData["molecule"]}',
-        answer = '{$jsonData["answer"]}',
-        incorrect1 = '{$jsonData["incorrect1"]}',
-        incorrect2 = '{$jsonData["incorrect2"]}',
-        incorrect3 = '{$jsonData["incorrect3"]}',
+        reactant = '{$jsonData["reactant"]}',
+        reagent = '{$jsonData["reagent"]}',
+        productSmile = '{$jsonData["productSmile"]}',
+        productInchi = '{$jsonData["productInchi"]}',
+        catalyst = '{$jsonData["catalyst"]}',
+        solvent = '{$jsonData["solvent"]}',
+        temperature = '{$jsonData["temperature"]}',
+        time = '{$jsonData["time"]}',
         difficulty = '1'
-        WHERE structureId = $structureId";
+        WHERE reactionId = $reactionId";
     } else {
-        $query = "INSERT INTO $sql_table (molecule, answer, incorrect1, incorrect2, incorrect3, difficulty)
+        $query = "INSERT INTO $sql_table (reactant, reagent, productSmile, productInchi, catalyst, solvent, temperature, time, difficulty)
         VALUES
-        ('{$jsonData["molecule"]}','{$jsonData["answer"]}','{$jsonData["incorrect1"]}','{$jsonData["incorrect2"]}','{$jsonData["incorrect3"]}','1')";
+        ('{$jsonData["reactant"]}','{$jsonData["reagent"]}','{$jsonData["productSmile"]}','{$jsonData["productInchi"]}','{$jsonData["catalyst"]}','{$jsonData["solvent"]}','{$jsonData["temperature"]}','{$jsonData["time"]}','1')";
     }
 
     $result = mysqli_query($conn, $query);
@@ -120,11 +124,11 @@ function handlePutData($conn, $sql_table, $response) {
 }
 
 function handleDeleteData($conn, $sql_table, $response) {
-    $structureId = $_GET["structureId"];
+    $reactionId = $_GET["reactionId"];
 
     $query = "DELETE FROM $sql_table
     WHERE
-    structureId = $structureId";
+    reactionId = $reactionId";
 
     $result = mysqli_query($conn, $query);
 

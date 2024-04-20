@@ -8,9 +8,6 @@ li {
   list-style-type: none;
 }
 
-#existing-structureQ-list {
-}
-
 #existing-structureQ-list > li,
 #new-structureQ-container {
   display: grid;

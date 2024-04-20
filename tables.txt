@@ -46,7 +46,7 @@ CREATE TABLE StructureQ (
     incorrect1 VARCHAR(30) NOT NULL,
     incorrect2 VARCHAR(30) NOT NULL,
     incorrect3 VARCHAR(30) NOT NULL,
-    difficulty int NOT NULL
+    difficulty INT NOT NULL
 );
 
 INSERT INTO StructureQ (molecule, answer, incorrect1, incorrect2, incorrect3, difficulty)
@@ -62,3 +62,16 @@ VALUES
 
 SELECT molecule, answer, incorrect1, incorrect2, incorrect3
 FROM StructureQ;
+
+CREATE TABLE ReactionQ (
+    reactionId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    reactant TEXT NOT NULL,
+    reagent TEXT,
+    productSmile TEXT NOT NULL,
+    productInchi TEXT NOT NULL,
+    catalyst TEXT,
+    solvent TEXT,
+    temperature TEXT,
+    time TEXT,
+    difficulty INT NOT NULL
+);

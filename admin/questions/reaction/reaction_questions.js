@@ -1,0 +1,465 @@
+import { getJsmeApplet, getJsme, hideJsme, initializeJsme } from '../../../utils/jsme.js'
+import { getRDKit, initRDKit } from '../../../utils/rdkit.js'
+import { convertToChemicalFormula } from '../../../utils/misc.js'
+import { ARROW_SVG, PLUS_SVG } from '../../../utils/svgs.js'
+
+/* FETCH FUNCTIONS */
+// fetch list of existing reactions
+async function getData() {
+  const response = await fetch('reaction_questions.php')
+
+  if (!response.ok) {
+    console.log('something went wrong...')
+    return
+  }
+
+  const json = await response.json()
+
+  return json.data
+}
+
+async function handleDeleteItem(session, reactionId) {
+  const response = await fetch(`reaction_questions.php?reactionId=${reactionId}`, {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    console.log('something went wrong...')
+    return
+  }
+
+  const json = await response.json()
+
+  // call render with updated data
+  session.init(json.data)
+}
+
+async function handleSubmit(session) {
+  const { editData } = session.getState()
+  // if only 1 structure, store in structure1
+  if (!editData.reactant && editData.reagent) {
+    editData.reactant = editData.reagent
+    editData.reagent = ''
+  }
+
+  // a valid reaction needs only reactant and product
+  if (!editData.reactant || !editData.productSmile) {
+    alert('Please enter both a reactant and product')
+    return
+  }
+
+  console.log(editData)
+
+  const response = await fetch('./reaction_questions.php', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(editData),
+  })
+
+  if (!response.ok) {
+    console.log('something went wrong...')
+    return
+  }
+
+  const json = await response.json()
+
+  session.init(json.data)
+}
+
+/* RENDER FUNCTIONS */
+// will be "new" or the particular structureId
+function renderEditable(session) {
+  const { editData, editRow, editCol } = session.getState()
+
+  console.log({ editData, editRow, editCol })
+
+  hideJsme()
+  getJsmeApplet().reset()
+  let RDKit = getRDKit()
+
+  const productSVG = editData.productSmile ? RDKit.get_mol(editData.productSmile).get_svg() : null
+  const reactantSVG = editData.reactant ? RDKit.get_mol(editData.reactant).get_svg() : null
+  const reagentSVG = editData.reagent ? RDKit.get_mol(editData.reagent).get_svg() : null
+
+  const template = `
+        <button class="mol-input-btn ${editRow}-input" id="${editRow}-reactant-container">${
+    reactantSVG ? reactantSVG : '[Reactant]'
+  }</button>
+          <div id="plus-container">${PLUS_SVG}</div>
+          <button class="mol-input-btn ${editRow}-input" id="${editRow}-reagent-container">${
+    reagentSVG ? reagentSVG : '[Reactant/Reagent]'
+  }</button>
+  <div class="reaction-conditions-container">
+  <div class="spacer">.</div>
+  <div class="spacer">.</div>
+    <button class="cond-container ${editRow}-input" id="${editRow}-catalyst-container">${
+    editData.catalyst ? convertToChemicalFormula(editData.catalyst) : '[Catalyst]'
+  }</button>
+    <div id="arrow-container">${ARROW_SVG}</div>
+    <button class="cond-container ${editRow}-input" id="${editRow}-solvent-container">${
+    editData.solvent ? convertToChemicalFormula(editData.solvent) : '[Solvent]'
+  }</button>
+    <button class="cond-container ${editRow}-input" id="${editRow}-temperature-container">${
+    editData.temperature ? editData.temperature + ' °C' : '[Reaction Temperature (°C)]'
+  }</button>
+    <button class="cond-container ${editRow}-input" id="${editRow}-time-container">${
+    editData.time ? editData.time + ' h' : '[Reaction Time (h)]'
+  }</button>
+</div>
+          <button class="mol-input-btn ${editRow}-input" id="${editRow}-productSmile-container">${
+    productSVG ? productSVG : 'Product'
+  }</button>
+      ${
+        editRow === 'new'
+          ? `
+      <div class="buttons-container">
+        <button id="new-submitBtn">Submit</button>
+      </div>
+      `
+          : `
+      <div class="buttons-container">
+        <button id="${editRow}-editBtn" disabled>Edit</button>
+        <button id="${editRow}-submitBtn">Submit</button>
+        <button id="${editRow}-cancelBtn">Cancel</button>
+      </div>
+      `
+      }
+        `
+
+  document.getElementById(`${editRow}-reactionQ-container`).innerHTML = template
+
+  /* EVENTS */
+  // set up events for clicking a column (ie a property that needs to be inputted)
+  // only put events on the buttons if they weren't just clicked
+  // for the one that was just clicked (editCol), render either a jsme (for molecules) or input field (for conditions)
+  let moleculeTypes = ['reactant', 'reagent', 'productSmile']
+  moleculeTypes.forEach((moleculeType) => {
+    if (moleculeType === editCol) {
+      renderEditMolecule(session)
+    } else {
+      document
+        .getElementById(`${editRow}-${moleculeType}-container`)
+        .addEventListener('click', () => session.handleClickCol(moleculeType))
+    }
+  })
+
+  let conditionTypes = ['catalyst', 'solvent', 'temperature', 'time']
+  conditionTypes.forEach((conditionType) => {
+    if (conditionType === editCol) {
+      renderEditCondition(session)
+    } else {
+      document
+        .getElementById(`${editRow}-${conditionType}-container`)
+        .addEventListener('click', () => session.handleClickCol(conditionType))
+    }
+  })
+
+  // set up events for the right-hand-side buttons (submit, cancel)
+  document
+    .getElementById(`${editRow}-submitBtn`)
+    .addEventListener('click', () => handleSubmit(session))
+
+  // list only buttons
+  if (editRow !== 'new') {
+    document
+      .getElementById(`${editRow}-cancelBtn`)
+      .addEventListener('click', () => session.handleClickRow('new'))
+  }
+}
+
+// the new input area is rendered with this function when an existing reaction is being edited
+function renderBigButton(session) {
+  const newReactionQContainer = document.getElementById('new-reactionQ-container')
+
+  const template = `
+        <button id="new-editBtn">BIG BUTTON</button>
+    `
+
+  newReactionQContainer.innerHTML = template
+
+  document
+    .getElementById(`new-editBtn`)
+    .addEventListener('click', () => session.handleClickRow('new'))
+}
+
+// a molecule being edited has a jsme input field as well as 2 buttons: scrap & save
+function renderEditMolecule(session) {
+  const { editData, editRow, editCol } = session.getState()
+  let JSME = getJsme()
+
+  document.getElementById(`${editRow}-${editCol}-container`).innerHTML = ''
+  document.getElementById(`${editRow}-${editCol}-container`).appendChild(JSME)
+
+  // will populate the jsme input field with a structure if one currently exists for the reaction, or blank if not
+  getJsmeApplet().readGenericMolecularInput(editData[editCol])
+
+  let template = `
+            <button type="button" id="scrap-btn">Scrap</button>
+            <button type="button" id="save-btn">Save</button>
+          `
+
+  const btnContainer = document.createElement('div')
+  btnContainer.innerHTML = template
+  document.getElementById(`${editRow}-${editCol}-container`).appendChild(btnContainer)
+
+  document.getElementById(`scrap-btn`).addEventListener('click', () => session.handleClickCol(null))
+  document.getElementById(`save-btn`).addEventListener('click', () => session.saveInput())
+}
+
+function renderEditCondition(session) {
+  const { editData, editRow, editCol } = session.getState()
+
+  let inputTemplate = `
+      <div id="input-container>
+        <label for="${editCol}-input">${editCol}:</label>
+        <input type="text" value="${editData[editCol]}" id="${editRow}-${editCol}-input" />
+      </div>
+      <div>
+        <button type="button" id="scrap-btn">Scrap</button>
+        <button type="button" id="save-btn">Save</button>
+      </div>
+      `
+
+  document.getElementById(`${editRow}-${editCol}-container`).innerHTML = inputTemplate
+  document.getElementById(`${editRow}-${editCol}-input`).focus()
+
+  document.getElementById(`scrap-btn`).addEventListener('click', () => session.handleClickCol(null))
+  document.getElementById(`save-btn`).addEventListener('click', () => session.saveInput())
+}
+
+// print the elements to the page with a button which allows editing
+// if the element isn't present in the data, doesn't render a placeholder
+function renderReadOnly(session, rData) {
+  const RDKit = getRDKit()
+  const productSVG = rData.productSmile ? RDKit.get_mol(rData.productSmile).get_svg() : null
+  const reactantSVG = rData.reactant ? RDKit.get_mol(rData.reactant).get_svg() : null
+  const reagentSVG = rData.reagent ? RDKit.get_mol(rData.reagent).get_svg() : null
+
+  let template = `
+      <p>${rData.reactionId})</p>
+      <div class="mol-input-btn" id="reactant-container">${reactantSVG ? reactantSVG : ''}</div>
+        ${reagentSVG ? `<div id="plus-container">${PLUS_SVG}</div>` : ''}
+      <div class="mol-input-btn" id="reagent-container">${reagentSVG ? reagentSVG : ''}</div>
+      <div class="reaction-conditions-container">
+        <div class="spacer">.</div>
+        <div class="spacer">.</div>
+          <div class="cond-container" id="catalyst-container">${
+            rData.catalyst ? convertToChemicalFormula(rData.catalyst) : ''
+          }</div>
+          <div id="arrow-container">${ARROW_SVG}</div>
+          <div class="cond-container" id="solvent-container">${
+            rData.solvent ? convertToChemicalFormula(rData.solvent) : ''
+          }</div>
+          <div class="cond-container" id="reaction-temp-container">${
+            rData.temperature ? rData.temperature + ' °C' : ''
+          }</div>
+          <div class="cond-container" id="reaction-time-container">${
+            rData.time ? rData.time + ' h' : ''
+          }</div>
+      </div>
+      <div class="mol-input-btn" id="product-container">${productSVG ? productSVG : 'Product'}</div>
+      <div class="buttons-container">
+        <button id="${rData.reactionId}-editBtn">Edit</button>
+        <button id="${rData.reactionId}-submitBtn" disabled>Submit</button>
+        <button id="${rData.reactionId}-deleteBtn">X</button>
+      </div>
+  `
+
+  const newLiItem = document.getElementById(`${rData.reactionId}-reactionQ-container`)
+
+  newLiItem.innerHTML = template
+
+  document
+    .getElementById(`${rData.reactionId}-editBtn`)
+    .addEventListener('click', () => session.handleClickRow(rData.reactionId))
+
+  document
+    .getElementById(`${rData.reactionId}-deleteBtn`)
+    .addEventListener('click', () => handleDeleteItem(session, rData.reactionId))
+}
+
+/* CONTROLLER */
+// a closure that keeps the states of:
+// editData: either new input data, or data being modified
+// editRow: either "new", or the reactionId of the data being modified
+// editCol: the current element being modified
+
+// editData can change during saveInput()
+// editRow changes when edit is pressed on a row of data (ie a question)
+// editCol changes when an item in a reaction is clicked on to edit it
+
+// renderAll()
+// editRow === "new":
+//  renderEditable() called for the new input section
+//  renderReadOnly() called for each existing item
+// -------------
+// editRow !== "new" and editRow === existingData[i].reactionId
+//  renderBigButton() called for the new input section
+//  renderReadOnly() called for each existing item except the one being edited
+//  renderEditable() called for the one item that is being edited
+
+function initCurrentSession() {
+  const blankData = {
+    productSmile: '',
+    productInchi: '',
+    reactant: '',
+    reagent: '',
+    catalyst: '',
+    solvent: '',
+    temperature: '',
+    time: '',
+    difficulty: 1,
+  }
+
+  let currentSessionRef = ''
+  let editData = { ...blankData }
+  let editRow = 'new'
+  let editCol = null
+  let existingData = []
+  const reactionQList = document.getElementById('existing-reactionQ-list')
+
+  function storeSessionRef(currentSession) {
+    currentSessionRef = currentSession
+  }
+
+  function refreshNewInput() {
+    editData = { ...blankData }
+    editRow = 'new'
+    editCol = null
+  }
+
+  function handleClickCol(clickedEditCol) {
+    editCol = clickedEditCol
+    renderAll()
+  }
+
+  function handleClickRow(clickedEditRow) {
+    editRow = clickedEditRow
+    if (clickedEditRow === 'new') {
+      editData = { ...blankData }
+    } else {
+      editData = existingData.find((data) => data.reactionId === clickedEditRow)
+    }
+    renderAll()
+  }
+
+  function getState() {
+    return { editData, editRow, editCol, existingData }
+  }
+
+  // different require different methods to get the data
+  // this function will extract the correct data using:
+  // the current row ("new" or structureId) and
+  // the current column (the particular item that is being created/edited)
+  function saveInput() {
+    // make a copy of reaction data object so no mutation
+    let modifiedData = { ...editData }
+
+    let jsmeApplet = getJsmeApplet()
+    let RDKit = getRDKit()
+    if (editCol === 'reactant') {
+      if (!jsmeApplet.smiles()) return
+
+      modifiedData.reactant = jsmeApplet.smiles()
+    }
+
+    // allow for reagent to be blank
+    if (editCol === 'reagent') {
+      if (!jsmeApplet.smiles()) {
+        modifiedData.reagent = ''
+      } else {
+        modifiedData.reagent = jsmeApplet.smiles()
+      }
+    }
+
+    if (editCol === 'productSmile') {
+      if (!jsmeApplet.smiles()) return
+
+      modifiedData.productSmile = jsmeApplet.smiles()
+      modifiedData.productInchi = RDKit.get_mol(modifiedData.productSmile).get_inchi()
+    }
+
+    if (editCol === 'catalyst') {
+      modifiedData.catalyst = document.getElementById(`${editRow}-catalyst-input`).value
+    }
+
+    if (editCol === 'solvent') {
+      modifiedData.solvent = document.getElementById(`${editRow}-solvent-input`).value
+    }
+
+    if (editCol === 'temperature') {
+      modifiedData.temperature = document.getElementById(`${editRow}-temperature-input`).value
+    }
+
+    if (editCol === 'time') {
+      modifiedData.time = document.getElementById(`${editRow}-time-input`).value
+    }
+
+    // just replaces the stored reaction data object reference to the newly created one
+    editData = modifiedData
+    editCol = null
+    renderAll()
+  }
+
+  function renderAll() {
+    hideJsme()
+    // render new reaction section
+    if (editRow === 'new') {
+      renderEditable(currentSessionRef)
+    } else {
+      renderBigButton(currentSessionRef)
+    }
+
+    // render existing reaction list section
+    reactionQList.innerHTML = ''
+
+    for (let i = 0; i < existingData.length; i++) {
+      // create an element in which to render the new data
+      const newLiItem = document.createElement('li')
+      newLiItem.id = `${existingData[i].reactionId}-reactionQ-container`
+      document.getElementById('existing-reactionQ-list').appendChild(newLiItem)
+
+      if (existingData[i].reactionId === editRow) {
+        renderEditable(currentSessionRef)
+      } else {
+        renderReadOnly(currentSessionRef, existingData[i])
+      }
+    }
+  }
+
+  function init(existingQuestionData) {
+    existingData = existingQuestionData
+    refreshNewInput()
+    renderAll()
+  }
+
+  return {
+    init,
+    storeSessionRef,
+    getState,
+    handleClickCol,
+    handleClickRow,
+    saveInput,
+  }
+}
+
+async function init() {
+  await initRDKit()
+
+  initializeJsme()
+
+  const existingQData = await getData()
+
+  // create a closure for storing the data for the page
+  const currentSession = initCurrentSession()
+
+  // need to pass the reference to the closure down the tree, so storing the reference in this step
+  currentSession.storeSessionRef(currentSession)
+
+  // populate the closure with existing data, then render the initial screen
+  currentSession.init(existingQData)
+}
+
+onload = init
