@@ -133,7 +133,7 @@ function renderBigButton(session) {
     .addEventListener('click', () => session.handleClickRow('new'))
 }
 
-// will be "new" or the particular reactionId
+// probably could be combined with renderEditable, but at least if want to chance things later it is easy to do so
 function renderReadOnly(session, qData) {
   const moleculeSVG = getRDKit().get_mol(qData.molecule).get_svg()
 

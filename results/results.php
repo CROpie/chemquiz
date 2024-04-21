@@ -40,13 +40,24 @@ for ($i = 0; $i < count($playerAnswersData); $i++) {
         FROM StructureQ
         WHERE structureId = $questionId
     ";
+    } else if ($type === "reaction") {
+        $query = "SELECT productInchi
+        FROM ReactionQ
+        WHERE reactionId = $questionId
+        ";
     }
 
     $result = mysqli_query($conn, $query);
 
     $row = mysqli_fetch_assoc($result);
 
-    $actualAnswer = $row["answer"];
+    $actualAnswer = '';
+
+    if ($type === "structure") {
+        $actualAnswer = $row["answer"];
+    } else if ($type === "reaction") {
+        $actualAnswer = $row["productInchi"];
+    }
     
     if ($playerAnswer === $actualAnswer) {
         $playerScore += 1;
