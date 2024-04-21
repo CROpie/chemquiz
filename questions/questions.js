@@ -18,11 +18,15 @@ function handleAnswerQuestion(type, currentGame, questionId, answer) {
     // no attempt to answer the question
     if (!jsmeApplet.smiles()) {
       answerObject.userAnswer = ''
+      answerObject.userAnswerSmiles = ''
     } else {
       // get the structure from jsme, then clear the input
       const smile = jsmeApplet.smiles()
       const RDKit = getRDKit()
 
+      // smile is for rendering the player answer on the results page
+      // inchi is for checking player's answer with the one stored in the database
+      answerObject.userAnswerSmiles = smile
       answerObject.userAnswer = RDKit.get_mol(smile).get_inchi()
 
       jsmeApplet.reset()
@@ -43,31 +47,32 @@ function renderReactionQuestion(currentGame, rData) {
   const reagentSVG = rData.reagent ? RDKit.get_mol(rData.reagent).get_svg() : null
 
   let template = `
-      <section id=reactionQ-container>
-      <div class="mol-input-btn" id="reactant-container">${reactantSVG ? reactantSVG : ''}</div>
-        ${reagentSVG ? `<div id="plus-container">${PLUS_SVG}</div>` : ''}
-      <div class="mol-input-btn" id="reagent-container">${reagentSVG ? reagentSVG : ''}</div>
-      <div class="reaction-conditions-container">
-        <div class="spacer">.</div>
-        <div class="spacer">.</div>
-          <div class="cond-container" id="catalyst-container">${
-            rData.catalyst ? convertToChemicalFormula(rData.catalyst) : ''
-          }</div>
-          <div id="arrow-container">${ARROW_SVG}</div>
-          <div class="cond-container" id="solvent-container">${
-            rData.solvent ? convertToChemicalFormula(rData.solvent) : ''
-          }</div>
-          <div class="cond-container" id="reaction-temp-container">${
-            rData.temperature ? rData.temperature + ' °C' : ''
-          }</div>
-          <div class="cond-container" id="reaction-time-container">${
-            rData.time ? rData.time + ' h' : ''
-          }</div>
-      </div>
-      <div class="mol-input-btn" id="product-container"></div>
-      <div class="buttons-container">
-        <button id="submitBtn">Submit</button>
-      </div>
+      <section id="reaction-question-container">
+        <div id="reaction-container">
+          <div class="svg-container">${reactantSVG ? reactantSVG : ''}</div>
+
+          ${reagentSVG ? `<div>${PLUS_SVG}</div>` : ''}
+
+          <div class="svg-container">${reagentSVG ? reagentSVG : ''}</div>
+
+          <div class="reaction-conditions-container">
+
+            <div class="spacer">.</div>
+            <div class="spacer">.</div>
+
+            <div>${rData.catalyst ? convertToChemicalFormula(rData.catalyst) : ''}</div>
+            <div>${ARROW_SVG}</div>
+            <div>${rData.solvent ? convertToChemicalFormula(rData.solvent) : ''}</div>
+            <div>${rData.temperature ? rData.temperature + ' °C' : ''}</div>
+            <div>${rData.time ? rData.time + ' h' : ''}</div>
+
+          </div>
+
+          <div id="product-container"></div>
+        </div>
+        <div>
+          <button id="submitBtn">Submit</button>
+        </div>
       </section>
   `
 
@@ -89,12 +94,18 @@ function renderStructureQuestion(currentGame, question) {
   let choices = [question.answer, question.incorrect1, question.incorrect2, question.incorrect3]
   choices = shuffleArray(choices)
   let template = `
-          <h2>Select the correct name for this structure:</h2>
-          <div>${questionSVG}</div>
-          <button id="choice0">${choices[0]}</button>
-          <button id="choice1">${choices[1]}</button>
-          <button id="choice2">${choices[2]}</button>
-          <button id="choice3">${choices[3]}</button>
+        <section id="structure-question-container">
+          <div id="structure-container">
+            <h2>Select the correct name for this structure:</h2>
+            <div id="structure-svg-container">${questionSVG}</div>
+          </div>
+          <div id="structure-answers-container">
+            <button id="choice0">${choices[0]}</button>
+            <button id="choice1">${choices[1]}</button>
+            <button id="choice2">${choices[2]}</button>
+            <button id="choice3">${choices[3]}</button>
+          </div>
+        </section>
       `
 
   const MAIN = document.getElementById('main')
@@ -112,7 +123,8 @@ function renderStructureQuestion(currentGame, question) {
 async function handleFinishQuiz(answers) {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
   const userId = userInfo.userId
-  console.log(answers)
+
+  sessionStorage.setItem('playerAnswers', JSON.stringify(answers))
 
   const MAIN = document.getElementById('main')
 
@@ -133,10 +145,8 @@ async function handleFinishQuiz(answers) {
 
   const json = await response.json()
 
-  console.log(json)
-
   // store the answers in sessionStorage
-  sessionStorage.setItem('playerScore', JSON.stringify(json))
+  sessionStorage.setItem('results', JSON.stringify(json))
 
   // redirect to results page
   window.location.href = '../results/results.html'
@@ -189,6 +199,9 @@ function prepareQuestions() {
   const questions = JSON.parse(sessionStorage.getItem('questions'))
 
   const shuffledQuestions = shuffleArray(questions)
+
+  // store the shuffled questions in sessionStorage, to be able to retrieve in results.jp and render them in answered order
+  sessionStorage.setItem('questions', JSON.stringify(shuffledQuestions))
 
   const currentGame = storeInfo(shuffledQuestions)
 

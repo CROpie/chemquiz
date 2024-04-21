@@ -25,7 +25,16 @@ $jsonData = file_get_contents('php://input');
 // $playerAnswersData: [{answerType: "stucture" | "reaction" | ... , userAnswer: string, questionId: number }, ... ]
 $playerAnswersData = json_decode($jsonData, true);
 
+
+// was thinking that the questions would have to be retrieved here, in order to render them on the next page
+// however the questions are actually already stored in sessionStorage...
+
+// questions = sessionStorage.getItem('questions')
+// playerAnswers = sessionStorage.getItem('playerAnswers')
+// results = [true, false, true, true, false] (send from here)
+
 $playerScore = 0;
+$playerResultsArray = array();
 
 for ($i = 0; $i < count($playerAnswersData); $i++) {
 
@@ -61,6 +70,9 @@ for ($i = 0; $i < count($playerAnswersData); $i++) {
     
     if ($playerAnswer === $actualAnswer) {
         $playerScore += 1;
+        $playerResultsArray[] = true;
+    } else {
+        $playerResultsArray[] = false;
     }
     mysqli_free_result($result);
 }
@@ -74,7 +86,8 @@ $response = array(
     "success" => true,
     "message" => "",
     "score" => $playerScore,
-    "userId" => $userId
+    "userId" => $userId,
+    "results" => $playerResultsArray
 );
 
 header("Content-Type: application/json");

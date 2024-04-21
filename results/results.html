@@ -4,11 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="results.js" defer></script>
+    <script src="../node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
+    <script src="results.js" type="module" defer></script>
+    <link rel="stylesheet" href="results.css" />
   </head>
   <body>
     <a href="../../index.html">HOME</a>
-    <h1>Results Page</h1>
-    <main id="main"></main>
+
+    <main>
+      <h1>Results Page</h1>
+      <ul id="results-list"></ul>
+    </main>
   </body>
 </html>

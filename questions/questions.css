@@ -1,20 +1,52 @@
+:root {
+  --panel-colour: floralwhite;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-#reactionQ-container {
+body {
+  max-width: 1100px;
+  margin-inline: auto;
+  background: black;
+}
+
+h1 {
+  color: white;
+}
+
+/* overwrite default svg fill colour */
+svg > rect {
+  fill: var(--panel-colour) !important;
+}
+
+section {
+  background-color: var(--panel-colour);
+}
+
+/* REACTION QUESTION SPECIFIC */
+
+#reaction-question-container {
   display: flex;
-  border: 2px solid black;
   align-items: center;
   justify-content: space-between;
   padding-inline: 100px;
-  height: 300px;
+  height: 275px;
+  border: 2px solid black;
+  border-radius: 16px;
 }
 
-.spacer {
-  visibility: hidden;
+#reaction-container {
+  display: flex;
+  align-items: center;
+}
+
+.svg-container > svg {
+  height: 100px;
+  width: 100px;
 }
 
 .reaction-conditions-container {
@@ -23,6 +55,44 @@
   align-items: center;
 }
 
+.spacer {
+  visibility: hidden;
+}
+
 #jsme-storage {
   display: none;
+}
+
+/* STRUCTURE QUESTION SPECIFIC */
+
+#structure-question-container {
+  padding-inline: 100px;
+  height: 275px;
+  border: 2px solid black;
+  border-radius: 16px;
+  text-align: center;
+}
+
+#structure-svg-container > svg {
+  height: 200px;
+  width: 200px;
+}
+
+#structure-answers-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+#structure-answers-container > button {
+  padding: 4px 8px;
+  background-color: transparent;
+  outline: none;
+  border-radius: 8px;
+  transition: 0.3s ease-in-out all;
+  background-color: white;
+}
+
+#structure-answers-container > button:hover {
+  background-color: lime;
 }

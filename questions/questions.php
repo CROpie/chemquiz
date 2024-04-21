@@ -23,8 +23,8 @@ if (!$conn) {
 
 // $username = trim($data["username"]);
 
-$noReactionQs = 3;
-$noStructureQs = 0;
+$noReactionQs = 2;
+$noStructureQs = 2;
 
 // get a random number of the different question types
 // for ($i = 0; $i < 3; $i++) {
