@@ -80,33 +80,35 @@ function renderEditable(session) {
   const reagentSVG = editData.reagent ? RDKit.get_mol(editData.reagent).get_svg() : null
 
   const template = `
+
         <button class="mol-input-btn ${editRow}-input" id="${editRow}-reactant-container">${
-    reactantSVG ? reactantSVG : '[Reactant]'
+    reactantSVG ? reactantSVG : 'Reactant'
   }</button>
           <div id="plus-container">${PLUS_SVG}</div>
           <button class="mol-input-btn ${editRow}-input" id="${editRow}-reagent-container">${
-    reagentSVG ? reagentSVG : '[Reactant/Reagent]'
+    reagentSVG ? reagentSVG : 'Reactant/Reagent'
   }</button>
   <div class="reaction-conditions-container">
   <div class="spacer">.</div>
   <div class="spacer">.</div>
     <button class="cond-container ${editRow}-input" id="${editRow}-catalyst-container">${
-    editData.catalyst ? convertToChemicalFormula(editData.catalyst) : '[Catalyst]'
+    editData.catalyst ? convertToChemicalFormula(editData.catalyst) : 'Catalyst'
   }</button>
     <div id="arrow-container">${ARROW_SVG}</div>
     <button class="cond-container ${editRow}-input" id="${editRow}-solvent-container">${
-    editData.solvent ? convertToChemicalFormula(editData.solvent) : '[Solvent]'
+    editData.solvent ? convertToChemicalFormula(editData.solvent) : 'Solvent'
   }</button>
     <button class="cond-container ${editRow}-input" id="${editRow}-temperature-container">${
-    editData.temperature ? editData.temperature + ' °C' : '[Reaction Temperature (°C)]'
+    editData.temperature ? editData.temperature + ' °C' : 'Reaction Temperature (°C)'
   }</button>
     <button class="cond-container ${editRow}-input" id="${editRow}-time-container">${
-    editData.time ? editData.time + ' h' : '[Reaction Time (h)]'
+    editData.time ? editData.time + ' h' : 'Reaction Time (h)'
   }</button>
 </div>
           <button class="mol-input-btn ${editRow}-input" id="${editRow}-productSmile-container">${
     productSVG ? productSVG : 'Product'
   }</button>
+
       ${
         editRow === 'new'
           ? `
@@ -200,6 +202,8 @@ function renderEditMolecule(session) {
   btnContainer.innerHTML = template
   document.getElementById(`${editRow}-${editCol}-container`).appendChild(btnContainer)
 
+  document.getElementById(`${editRow}-${editCol}-container`).classList.add('editing-molecule')
+
   document.getElementById(`scrap-btn`).addEventListener('click', () => session.handleClickCol(null))
   document.getElementById(`save-btn`).addEventListener('click', () => session.saveInput())
 }
@@ -220,6 +224,9 @@ function renderEditCondition(session) {
       `
 
   document.getElementById(`${editRow}-${editCol}-container`).innerHTML = inputTemplate
+
+  document.getElementById(`${editRow}-${editCol}-container`).classList.add('editing-condition')
+
   document.getElementById(`${editRow}-${editCol}-input`).focus()
 
   document.getElementById(`scrap-btn`).addEventListener('click', () => session.handleClickCol(null))
@@ -233,34 +240,58 @@ function renderReadOnly(session, rData) {
   const productSVG = rData.productSmile ? RDKit.get_mol(rData.productSmile).get_svg() : null
   const reactantSVG = rData.reactant ? RDKit.get_mol(rData.reactant).get_svg() : null
   const reagentSVG = rData.reagent ? RDKit.get_mol(rData.reagent).get_svg() : null
+  // <div>${rData.catalyst ? convertToChemicalFormula(rData.catalyst) : ''}</div>
+  //
 
+  /*
+            <div>${rData.solvent ? convertToChemicalFormula(rData.solvent) : ''}</div>
+
+            <div>${rData.temperature ? rData.temperature + ' °C' : ''}</div>
+            <div>${rData.time ? rData.time + ' h' : ''}</div>
+  */
   let template = `
-      <p>${rData.reactionId})</p>
-      <div class="mol-input-btn" id="reactant-container">${reactantSVG ? reactantSVG : ''}</div>
+      <div class="reaction-question">
+        <div class="svg-container">${reactantSVG ? reactantSVG : ''}</div>
+
         ${reagentSVG ? `<div id="plus-container">${PLUS_SVG}</div>` : ''}
-      <div class="mol-input-btn" id="reagent-container">${reagentSVG ? reagentSVG : ''}</div>
-      <div class="reaction-conditions-container">
+
+        <div class="svg-container">${reagentSVG ? reagentSVG : ''}</div>
+
+        <div class="reaction-conditions-container">
+
         <div class="spacer">.</div>
         <div class="spacer">.</div>
-          <div class="cond-container" id="catalyst-container">${
-            rData.catalyst ? convertToChemicalFormula(rData.catalyst) : ''
-          }</div>
+
+        ${
+          rData.catalyst
+            ? `<div>${convertToChemicalFormula(rData.catalyst)}</div>`
+            : `<div class="spacer">.</div>`
+        }
           <div id="arrow-container">${ARROW_SVG}</div>
-          <div class="cond-container" id="solvent-container">${
-            rData.solvent ? convertToChemicalFormula(rData.solvent) : ''
-          }</div>
-          <div class="cond-container" id="reaction-temp-container">${
-            rData.temperature ? rData.temperature + ' °C' : ''
-          }</div>
-          <div class="cond-container" id="reaction-time-container">${
-            rData.time ? rData.time + ' h' : ''
-          }</div>
+
+        ${
+          rData.solvent
+            ? `<div>${convertToChemicalFormula(rData.solvent)}</div>`
+            : `<div class="spacer">.</div>`
+        }
+
+        ${
+          rData.temperature
+            ? `<div>${rData.temperature + ' °C'}</div>`
+            : `<div class="spacer">.</div>`
+        }
+
+        ${rData.time ? `<div>${rData.time + ' h'}</div>` : `<div class="spacer">.</div>`}
+
+
+        </div>
+
+        <div class="svg-container">${productSVG ? productSVG : 'Product'}</div>
       </div>
-      <div class="mol-input-btn" id="product-container">${productSVG ? productSVG : 'Product'}</div>
       <div class="buttons-container">
         <button id="${rData.reactionId}-editBtn">Edit</button>
         <button id="${rData.reactionId}-submitBtn" disabled>Submit</button>
-        <button id="${rData.reactionId}-deleteBtn">X</button>
+        <button id="${rData.reactionId}-deleteBtn">Delete</button>
       </div>
   `
 
@@ -424,6 +455,8 @@ function initCurrentSession() {
       document.getElementById('existing-reactionQ-list').appendChild(newLiItem)
 
       if (existingData[i].reactionId === editRow) {
+        // give the editing list item more height
+        newLiItem.classList.add('editing-reaction')
         renderEditable(currentSessionRef)
       } else {
         renderReadOnly(currentSessionRef, existingData[i])

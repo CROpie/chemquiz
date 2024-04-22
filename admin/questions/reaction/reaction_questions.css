@@ -1,7 +1,27 @@
+:root {
+  --panel-colour: floralwhite;
+  --btn-hoverBg: rgb(238, 233, 233);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+body {
+  max-width: 1200px;
+  margin-inline: auto;
+  background: black;
+}
+
+h2 {
+  color: white;
+}
+
+/* overwrite default svg fill colour */
+svg > rect {
+  fill: var(--panel-colour) !important;
 }
 
 #jsme-storage {
@@ -13,8 +33,10 @@
   border: 2px solid black;
   align-items: center;
   justify-content: space-between;
-  padding-inline: 100px;
+  padding-inline: 25px;
   height: 300px;
+  border-radius: 16px;
+  background-color: var(--panel-colour);
 }
 
 .reaction-conditions-container {
@@ -31,11 +53,94 @@ li {
   list-style-type: none;
 }
 
+#existing-reactionQ-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 #existing-reactionQ-list > li {
   display: flex;
   border: 2px solid black;
   align-items: center;
   justify-content: space-between;
-  padding-inline: 100px;
+  padding-inline: 25px;
+  height: 125px;
+  border-radius: 16px;
+  background-color: var(--panel-colour);
+}
+
+#existing-reactionQ-list > .editing-reaction {
   height: 300px;
+}
+
+.reaction-question {
+  display: flex;
+  align-items: center;
+}
+
+.svg-container > svg {
+  height: 125px;
+  width: 125px;
+}
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.buttons-container > button {
+  width: 100px;
+}
+
+.reaction-conditions-container {
+  font-size: 0.75rem;
+}
+
+button {
+  background-color: transparent;
+  transition: 0.3s ease-in-out all;
+  border-radius: 8px;
+}
+
+button:hover {
+  background-color: var(--btn-hoverBg);
+}
+
+#new-reactionQ-container > button,
+.reaction-conditions-container > button,
+.editing-condition button,
+.editing-molecule button {
+  padding: 4px 8px;
+}
+
+/* relevant when a col or row is clicked */
+.editing-molecule,
+.editing-condition {
+  border: none;
+  outline: none;
+}
+
+.editing-molecule:hover,
+.editing-condition:hover {
+  background-color: transparent;
+}
+
+button:disabled:hover {
+  background-color: transparent;
+}
+
+/* select svg's that have been rendered inside the editing container
+  will avoid selecting jsme if svg > rect is used instead of svg rect.
+  !important needed to overwrite inline svg styling
+*/
+button svg > rect {
+  transition: 0.3s ease-in-out all;
+}
+
+button:hover svg > rect {
+  /* fill: var(--panel-colour) !important; */
+  /* fill: white !important; */
+  fill: var(--btn-hoverBg) !important;
 }

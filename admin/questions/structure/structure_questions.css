@@ -1,7 +1,27 @@
+:root {
+  --panel-colour: floralwhite;
+  --btn-hoverBg: rgb(238, 233, 233);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+body {
+  max-width: 1200px;
+  margin-inline: auto;
+  background: black;
+}
+
+h2 {
+  color: white;
+}
+
+/* overwrite default svg fill colour */
+svg > rect {
+  fill: var(--panel-colour) !important;
 }
 
 li {
@@ -11,14 +31,28 @@ li {
 #existing-structureQ-list > li,
 #new-structureQ-container {
   display: grid;
-  grid-template-columns: 250px 1fr 250px;
+  grid-template-columns: 250px 1fr 150px;
   border: 2px solid black;
+  background: var(--panel-colour);
+  border-radius: 16px;
+  padding-inline: 25px;
+  align-items: center;
 }
 
 .options-container {
   display: flex;
   flex-direction: column;
   margin-inline: 64px;
+  gap: 4px;
+}
+
+.options-container label:first-of-type {
+  color: green;
+}
+
+.options-container label:last-of-type {
+  color: red;
+  margin-top: 8px;
 }
 
 #jsme-storage {
@@ -26,7 +60,7 @@ li {
 }
 
 input:disabled {
-  border: none;
+  background-color: var(--panel-colour);
 }
 
 /* just want the big button container to have the same height as the add structure container */
@@ -45,4 +79,42 @@ input:disabled {
 
 #new-editBtn:hover {
   background-color: ghostwhite;
+}
+
+/* .svg-container > svg {
+  height: 250px;
+  width: 250px;
+} */
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.buttons-container > button {
+  width: 100px;
+}
+
+input {
+  padding-block: 4px;
+  padding-inline: 8px;
+  outline: none;
+  border-radius: 8px;
+
+  /* transition: 0.3s ease-in-out all; */
+}
+
+input:focus {
+  outline: 2px solid blueviolet;
+}
+
+button {
+  background-color: transparent;
+  transition: 0.3s ease-in-out all;
+  border-radius: 8px;
+}
+
+button:hover {
+  background-color: var(--btn-hoverBg);
 }

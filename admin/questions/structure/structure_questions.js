@@ -138,9 +138,9 @@ function renderReadOnly(session, qData) {
   const moleculeSVG = getRDKit().get_mol(qData.molecule).get_svg()
 
   const template = `
-  <div id="${qData.structureId}-molecule-input-container">${moleculeSVG}</div>
+  <div class="svg-container">${moleculeSVG}</div>
   <div class="options-container">
-    <label for="${qData.structureId}-answer">answer</label>
+    <label for="${qData.structureId}-answer">Answer</label>
     <input class="new-input" id="${qData.structureId}-answer" type="text" value="${qData.answer}" disabled/>
 
     <label>Incorrect Answers</label>
@@ -152,7 +152,7 @@ function renderReadOnly(session, qData) {
       <div class="buttons-container">
         <button id="${qData.structureId}-editBtn">Edit</button>
         <button id="${qData.structureId}-submitBtn" disabled>Submit</button>
-        <button id="${qData.structureId}-deleteBtn">X</button>
+        <button id="${qData.structureId}-deleteBtn">Delete</button>
       </div>
         `
 
