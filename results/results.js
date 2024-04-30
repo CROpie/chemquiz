@@ -58,7 +58,9 @@ function renderReactionResult(question, playerAnswer, result, questionNo) {
     <div class="answers-container">
       <div class="reaction-compare-response">
         <h3 class="reaction-response">Answer: ${answerSVG}</h3>
-        <h3 class="reaction-response">Your answer: ${playerAnswerSVG}</h3>
+        <h3 class="reaction-response">Your answer: ${
+          playerAnswerSVG ? playerAnswerSVG : '&lt;No Attempt&gt;'
+        }</h3>
       </div>
         <p class="result-score ${result ? 'green' : 'red'}">${result ? '✔ 10' : '✘ 0'}</p>
     </div>

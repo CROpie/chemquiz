@@ -1,5 +1,6 @@
 :root {
   --panel-colour: floralwhite;
+  --shadow: 3px 3px 5px 0px rgba(0, 255, 16, 0.8);
 }
 
 * {
@@ -37,6 +38,7 @@ section {
   height: 275px;
   border: 2px solid black;
   border-radius: 16px;
+  box-shadow: var(--shadow);
 }
 
 #reaction-container {
@@ -71,6 +73,7 @@ section {
   border: 2px solid black;
   border-radius: 16px;
   text-align: center;
+  box-shadow: var(--shadow);
 }
 
 #structure-svg-container > svg {

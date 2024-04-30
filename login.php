@@ -5,7 +5,7 @@
 // $response = array("success" => "Successfully accessed PHP.");
 // echo json_encode($response);
 
-require_once ("../settings.php");
+require_once ("./settings.php");
 $conn = @mysqli_connect($host, $user, $pwd, $sql_db);
 
 if (!$conn) {
