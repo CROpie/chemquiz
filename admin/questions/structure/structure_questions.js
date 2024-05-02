@@ -63,13 +63,19 @@ function renderEditable(session) {
   const template = `
   <div id="${editRow}-molecule-input-container"></div>
   <div class="options-container">
-    <label for="${editRow}-answer">answer</label>
+    <label class="correct-label" for="${editRow}-answer">Answer</label>
     <input class="new-input" id="${editRow}-answer" type="text" value="${editData.answer}"/>
 
-    <label>Incorrect Answers</label>
+    <label class="incorrect-label">Incorrect Answers</label>
     <input class="new-input" id="${editRow}-incorrect1" type="text" value="${editData.incorrect1}"/>
     <input class="new-input" id="${editRow}-incorrect2" type="text" value="${editData.incorrect2}"/>
     <input class="new-input" id="${editRow}-incorrect3" type="text" value="${editData.incorrect3}"/>
+    <div>
+      <label class="difficulty-label" for="${editRow}-difficulty-checkbox">Difficult Question?</label>
+      <input type="checkbox" id="${editRow}-difficulty-checkbox" ${
+    editData.difficulty === '1' ? 'checked' : ''
+  } />
+    </div>
   </div>
       ${
         editRow === 'new'
@@ -103,6 +109,12 @@ function renderEditable(session) {
   getJsmeApplet().readGenericMolecularInput(editData.molecule)
 
   /* EVENTS */
+
+  // difficulty checkbox
+  // document
+  //   .getElementById(`${editRow}-difficulty-checkbox`)
+  //   .addEventListener('change', () => session.handleDifficultyCheckbox())
+
   // set up events for the right-hand-side buttons (submit, cancel)
   document
     .getElementById(`${editRow}-submitBtn`)
@@ -140,13 +152,22 @@ function renderReadOnly(session, qData) {
   const template = `
   <div class="svg-container">${moleculeSVG}</div>
   <div class="options-container">
-    <label for="${qData.structureId}-answer">Answer</label>
-    <input class="new-input" id="${qData.structureId}-answer" type="text" value="${qData.answer}" disabled/>
+    <label class="correct-label" for="${qData.structureId}-answer">Answer</label>
+    <input class="new-input" id="${qData.structureId}-answer" type="text" value="${
+    qData.answer
+  }" disabled/>
 
-    <label>Incorrect Answers</label>
-    <input class="new-input" id="${qData.structureId}-incorrect1" type="text" value="${qData.incorrect1}" disabled/>
-    <input class="new-input" id="${qData.structureId}-incorrect2" type="text" value="${qData.incorrect2}" disabled/>
-    <input class="new-input" id="${qData.structureId}-incorrect3" type="text" value="${qData.incorrect3}" disabled/>
+    <label class="incorrect-label">Incorrect Answers</label>
+    <input class="new-input" id="${qData.structureId}-incorrect1" type="text" value="${
+    qData.incorrect1
+  }" disabled/>
+    <input class="new-input" id="${qData.structureId}-incorrect2" type="text" value="${
+    qData.incorrect2
+  }" disabled/>
+    <input class="new-input" id="${qData.structureId}-incorrect3" type="text" value="${
+    qData.incorrect3
+  }" disabled/>
+    ${qData.difficulty === '1' ? '<label class="difficulty-label">Hard</label>' : ''}
   </div>
 
       <div class="buttons-container">
@@ -177,7 +198,7 @@ function initCurrentSession() {
     incorrect1: '',
     incorrect2: '',
     incorrect3: '',
-    difficulty: 1,
+    difficulty: '0',
   }
 
   let currentSessionRef = ''
@@ -206,6 +227,9 @@ function initCurrentSession() {
     modifiedData.incorrect1 = document.getElementById(`${editRow}-incorrect1`).value
     modifiedData.incorrect2 = document.getElementById(`${editRow}-incorrect2`).value
     modifiedData.incorrect3 = document.getElementById(`${editRow}-incorrect3`).value
+    modifiedData.difficulty = document.getElementById(`${editRow}-difficulty-checkbox`).checked
+      ? '1'
+      : '0'
 
     // don't allow submit if not all input fields have data
     if (
@@ -242,6 +266,12 @@ function initCurrentSession() {
     }
     renderAll()
   }
+
+  // function handleDifficultyCheckbox() {
+  //   let modifiedData = { ...editData }
+  //   modifiedData.difficulty = modifiedData.difficulty === '1' ? '0' : '1'
+  //   editData = modifiedData
+  // }
 
   function getState() {
     return { editData, editRow, existingData }
@@ -298,7 +328,13 @@ function initCurrentSession() {
     currentSessionRef = currentSession
   }
 
-  return { storeSessionRef, init, handleClickRow, getState, collectAndSubmit }
+  return {
+    storeSessionRef,
+    init,
+    handleClickRow,
+    getState,
+    collectAndSubmit,
+  }
 }
 
 async function init() {

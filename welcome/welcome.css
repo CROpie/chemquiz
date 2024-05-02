@@ -9,3 +9,8 @@ table tr td {
 td {
   padding: 4px;
 }
+
+#score-tables {
+  display: flex;
+  gap: 20px;
+}

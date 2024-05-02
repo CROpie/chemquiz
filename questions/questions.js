@@ -135,7 +135,9 @@ async function handleFinishQuiz(answers) {
   const response = await fetch(`../results/results.php?userId=${userId}`, {
     method: 'POST',
     body: JSON.stringify(answers),
-    'Content-Type': 'application/json',
+    headers: {
+      'Content-Type': 'application/json',
+    },
   })
 
   if (!response.ok) {

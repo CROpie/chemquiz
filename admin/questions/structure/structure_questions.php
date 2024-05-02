@@ -99,12 +99,12 @@ function handlePutData($conn, $sql_table, $response) {
         incorrect1 = '{$jsonData["incorrect1"]}',
         incorrect2 = '{$jsonData["incorrect2"]}',
         incorrect3 = '{$jsonData["incorrect3"]}',
-        difficulty = '1'
+        difficulty = '{$jsonData["difficulty"]}'
         WHERE structureId = $structureId";
     } else {
         $query = "INSERT INTO $sql_table (molecule, answer, incorrect1, incorrect2, incorrect3, difficulty)
         VALUES
-        ('{$jsonData["molecule"]}','{$jsonData["answer"]}','{$jsonData["incorrect1"]}','{$jsonData["incorrect2"]}','{$jsonData["incorrect3"]}','1')";
+        ('{$jsonData["molecule"]}','{$jsonData["answer"]}','{$jsonData["incorrect1"]}','{$jsonData["incorrect2"]}','{$jsonData["incorrect3"]}','{$jsonData["difficulty"]}')";
     }
 
     $result = mysqli_query($conn, $query);

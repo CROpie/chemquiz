@@ -71,6 +71,10 @@ async function handleSubmit(session) {
 function renderEditable(session) {
   const { editData, editRow, editCol } = session.getState()
 
+  console.log(editData)
+
+  console.log(editData.difficulty)
+
   hideJsme()
   getJsmeApplet().reset()
   let RDKit = getRDKit()
@@ -89,7 +93,12 @@ function renderEditable(session) {
     reagentSVG ? reagentSVG : 'Reactant/Reagent'
   }</button>
   <div class="reaction-conditions-container">
-  <div class="spacer">.</div>
+  <div>
+    <label for="${editRow}-difficulty-checkbox">Difficult Question?</label>
+    <input type="checkbox" id="${editRow}-difficulty-checkbox" ${
+    editData.difficulty === '1' ? 'checked' : ''
+  } />
+  </div>
   <div class="spacer">.</div>
     <button class="cond-container ${editRow}-input" id="${editRow}-catalyst-container">${
     editData.catalyst ? convertToChemicalFormula(editData.catalyst) : 'Catalyst'
@@ -108,6 +117,8 @@ function renderEditable(session) {
           <button class="mol-input-btn ${editRow}-input" id="${editRow}-productSmile-container">${
     productSVG ? productSVG : 'Product'
   }</button>
+
+
 
       ${
         editRow === 'new'
@@ -153,6 +164,11 @@ function renderEditable(session) {
         .addEventListener('click', () => session.handleClickCol(conditionType))
     }
   })
+
+  // difficulty checkbox
+  document
+    .getElementById(`${editRow}-difficulty-checkbox`)
+    .addEventListener('change', () => session.handleDifficultyCheckbox())
 
   // set up events for the right-hand-side buttons (submit, cancel)
   document
@@ -240,15 +256,9 @@ function renderReadOnly(session, rData) {
   const productSVG = rData.productSmile ? RDKit.get_mol(rData.productSmile).get_svg() : null
   const reactantSVG = rData.reactant ? RDKit.get_mol(rData.reactant).get_svg() : null
   const reagentSVG = rData.reagent ? RDKit.get_mol(rData.reagent).get_svg() : null
-  // <div>${rData.catalyst ? convertToChemicalFormula(rData.catalyst) : ''}</div>
-  //
 
-  /*
-            <div>${rData.solvent ? convertToChemicalFormula(rData.solvent) : ''}</div>
+  console.log(rData)
 
-            <div>${rData.temperature ? rData.temperature + ' °C' : ''}</div>
-            <div>${rData.time ? rData.time + ' h' : ''}</div>
-  */
   let template = `
       <div class="reaction-question">
         <div class="svg-container">${reactantSVG ? reactantSVG : ''}</div>
@@ -287,7 +297,11 @@ function renderReadOnly(session, rData) {
         </div>
 
         <div class="svg-container">${productSVG ? productSVG : 'Product'}</div>
+        
       </div>
+
+      ${rData.difficulty === '1' ? '<p>Hard</p>' : ''}
+
       <div class="buttons-container">
         <button id="${rData.reactionId}-editBtn">Edit</button>
         <button id="${rData.reactionId}-submitBtn" disabled>Submit</button>
@@ -338,7 +352,7 @@ function initCurrentSession() {
     solvent: '',
     temperature: '',
     time: '',
-    difficulty: 1,
+    difficulty: '0',
   }
 
   let currentSessionRef = ''
@@ -375,6 +389,12 @@ function initCurrentSession() {
 
   function getState() {
     return { editData, editRow, editCol, existingData }
+  }
+
+  function handleDifficultyCheckbox() {
+    let modifiedData = { ...editData }
+    modifiedData.difficulty = modifiedData.difficulty === '1' ? '0' : '1'
+    editData = modifiedData
   }
 
   // different require different methods to get the data
@@ -478,6 +498,7 @@ function initCurrentSession() {
     getState,
     handleClickCol,
     handleClickRow,
+    handleDifficultyCheckbox,
     saveInput,
   }
 }

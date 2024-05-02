@@ -15,13 +15,10 @@ if (!$conn) {
     exit;
 }
 
-// get the data that was posted
-// don't need to get the usernames?
-// $jsonData = file_get_contents('php://input');
-
-// $data = json_decode($jsonData, true); 
-
-// $username = trim($data["username"]);
+// determine whether the user wants difficult questions or not
+// convert to 0 or 1 for use in SQL query
+$isDifficult = $_GET["isDifficult"];
+$difficulty = $isDifficult === "true" ? "1" : "0";
 
 $noReactionQs = 2;
 $noStructureQs = 2;
@@ -39,6 +36,7 @@ $data = array();
 // STRUCTURE QUESTIONS
 $query = "SELECT structureId, molecule, answer, incorrect1, incorrect2, incorrect3
 FROM StructureQ
+WHERE difficulty = $difficulty
 ORDER BY RAND()
 LIMIT $noStructureQs;
 ";
@@ -54,6 +52,7 @@ mysqli_free_result($result);
 // REACTION QUESTIONS
 $query = "SELECT *
 FROM ReactionQ
+WHERE difficulty = $difficulty
 ORDER BY RAND()
 LIMIT $noReactionQs
 ";
@@ -68,18 +67,6 @@ mysqli_free_result($result);
 
 $response["success"] = true;
 $response["data"] = $data;
-
-
-// determine the outcome
-// if (empty($data)) {
-//     // if the array has no values, ie no rows were returned
-//     $response["message"] = "no rows returned";
-// } else if (!$result) {
-//     $response["message"] = "error connecting to database";
-// } else {
-//     $response["success"] = true;
-//     $response["data"] = $data;
-// }
 
 header("Content-Type: application/json");
 echo json_encode($response);

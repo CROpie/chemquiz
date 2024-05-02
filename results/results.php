@@ -79,6 +79,11 @@ for ($i = 0; $i < count($playerAnswersData); $i++) {
 
 // store the score on the database
 
+$query2 = "INSERT INTO Scores(userId, score)
+    VALUES($userId, $playerScore)";
+
+$result2 = mysqli_query($conn, $query2);
+
 // get updated score data for the player (and all players?)
 
 // prepare an object that will be sent back to client

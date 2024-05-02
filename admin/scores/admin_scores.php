@@ -3,7 +3,7 @@
 require_once ("../../settings.php");
 
 $conn = @mysqli_connect($host, $user, $pwd, $sql_db);
-$sql_table = 'Users';
+$sql_table = 'Scores';
 
 if (!$conn) {
     $response = array("error" => "Error connecting to the database.");
@@ -17,36 +17,66 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     exit;
 }
 
-function handleGetData($conn, $sql_table) {
-
-$query = "SELECT gameId, username, score, attemptDate
-FROM Scores
-JOIN Users ON Users.userId = Scores.userId
-";
-
-$result = mysqli_query($conn, $query);
-
-
-// validation of results
-if (!$result) {
-    $response = array("error" => "Query execution failure.");
-    echo json_encode($response);
+if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
+    handleDeleteData($conn, $sql_table);
     exit;
 }
 
-$data = array();
 
-while ($row = mysqli_fetch_assoc($result)) {
-    $data[] = $row;
+
+function handleGetData($conn, $sql_table) {
+
+    $query = "SELECT gameId, username, score, attemptDate
+    FROM $sql_table
+    JOIN Users ON Users.userId = Scores.userId
+    ";
+
+    $result = mysqli_query($conn, $query);
+
+
+    // validation of results
+    if (!$result) {
+        $response = array("error" => "Query execution failure.");
+        echo json_encode($response);
+        exit;
+    }
+
+    $data = array();
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = $row;
+    }
+
+    mysqli_free_result($result);
+
+    mysqli_close($conn);
+
+    header("Content-Type: application/json");
+    echo json_encode($data);
+
 }
 
-mysqli_free_result($result);
+function handleDeleteData($conn, $sql_table) {
 
-mysqli_close($conn);
+    // get the user id from query parameters
+    $gameId = $_GET['gameId'];
 
-header("Content-Type: application/json");
-echo json_encode($data);
+    // write the sql query
+    $query = "DELETE FROM $sql_table
+        WHERE
+        gameId = $gameId";
 
+    $result = mysqli_query($conn, $query);
+
+    // error handling for unable to connect to db
+    if (!$result) {
+        $response = array("error" => "Query execution failure.");
+        echo json_encode($response);
+        exit;
+    }
+
+    // success, so get the updated data
+    handleGetData($conn, $sql_table);
 }
 
 

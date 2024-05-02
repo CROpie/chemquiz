@@ -102,12 +102,12 @@ function handlePutData($conn, $sql_table, $response) {
         solvent = '{$jsonData["solvent"]}',
         temperature = '{$jsonData["temperature"]}',
         time = '{$jsonData["time"]}',
-        difficulty = '1'
+        difficulty = '{$jsonData["difficulty"]}'
         WHERE reactionId = $reactionId";
     } else {
         $query = "INSERT INTO $sql_table (reactant, reagent, productSmile, productInchi, catalyst, solvent, temperature, time, difficulty)
         VALUES
-        ('{$jsonData["reactant"]}','{$jsonData["reagent"]}','{$jsonData["productSmile"]}','{$jsonData["productInchi"]}','{$jsonData["catalyst"]}','{$jsonData["solvent"]}','{$jsonData["temperature"]}','{$jsonData["time"]}','1')";
+        ('{$jsonData["reactant"]}','{$jsonData["reagent"]}','{$jsonData["productSmile"]}','{$jsonData["productInchi"]}','{$jsonData["catalyst"]}','{$jsonData["solvent"]}','{$jsonData["temperature"]}','{$jsonData["time"]}','{$jsonData["difficulty"]}')";
     }
 
     $result = mysqli_query($conn, $query);

@@ -1,0 +1,22 @@
+Chris
+
+write questions:
+    2 difficulty
+        10 x questionType = 40
+
+implement difficulty in the relevant parts of the project
+
+lobby: use Arun's SQL queries
+Investigate making a graph
+
+Arun
+
+Debugger for fun
+Combine Chem structures with results page
+
+results.php
+    userScores && leaderboard
+results.hs (sessionStorage)
+Queries for welcome page (& for results page)
+Button to go back to welcome page
+css

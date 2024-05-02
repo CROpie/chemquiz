@@ -126,6 +126,8 @@ async function init() {
   const playerAnswers = JSON.parse(sessionStorage.getItem('playerAnswers'))
   const resultsObject = JSON.parse(sessionStorage.getItem('results'))
 
+  console.log(questions, playerAnswers, resultsObject)
+
   renderPlayerResponses(questions, playerAnswers, resultsObject)
 }
 

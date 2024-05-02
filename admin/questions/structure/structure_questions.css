@@ -46,14 +46,33 @@ li {
   gap: 4px;
 }
 
-.options-container label:first-of-type {
+/* .options-container label:first-of-type {
   color: green;
-}
+} */
 
-.options-container label:last-of-type {
+/* .options-container label:last-of-type {
   color: red;
   margin-top: 8px;
+} */
+
+.correct-label {
+  color: red;
 }
+
+.incorrect-label {
+  color: green;
+  margin-top: 8px;
+}
+
+.difficulty-label {
+  font-weight: 800;
+}
+
+/* .options-container label:last-of-type {
+  color: black;
+  font-weight: 800;
+  margin-top: 8px;
+} */
 
 #jsme-storage {
   display: none;

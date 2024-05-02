@@ -2,13 +2,9 @@ async function handleStartGame() {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
   const username = userInfo.username
 
-  const response = await fetch('../questions/questions.php', {
-    method: 'POST',
-    body: JSON.stringify({ username }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+  const isDifficult = document.getElementById('difficultyToggle').checked
+
+  const response = await fetch(`../questions/questions.php?isDifficult=${isDifficult}`)
 
   if (!response.ok) {
     console.log('something went wrong')
@@ -22,6 +18,23 @@ async function handleStartGame() {
   // store the questions in session storage
   sessionStorage.setItem('questions', JSON.stringify(json.data))
   window.location.href = '../questions/questions.html'
+}
+
+function renderScoreboard(topScores) {
+  const TBODY = document.getElementById('scoreboardTbody')
+
+  for (let i = 0; i < topScores.length; i++) {
+    const trow = document.createElement('tr')
+
+    const rowTemplate = `
+      <td>${topScores[i].username}</td>
+      <td>${topScores[i].score}</td>
+      <td>${topScores[i].attemptDate}</td>
+      `
+
+    trow.innerHTML = rowTemplate
+    TBODY.appendChild(trow)
+  }
 }
 
 function renderScores(userScores) {
@@ -42,8 +55,15 @@ function renderScores(userScores) {
 
 function init() {
   const userScores = JSON.parse(sessionStorage.getItem('userScores'))
+  const topScores = [
+    { username: 'Chris', score: 10, attemptDate: '2024-04-30' },
+    { username: 'Arun', score: 9, attemptDate: '2024-03-12' },
+    { username: 'Layan', score: 8, attemptDate: '2024-05-02' },
+  ]
 
   renderScores(userScores)
+
+  renderScoreboard(topScores)
 
   document.getElementById('startBtn').addEventListener('click', handleStartGame)
 }
