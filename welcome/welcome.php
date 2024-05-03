@@ -10,11 +10,8 @@ if (!$conn) {
 }
 
 // get the data that was posted
-$jsonData = file_get_contents('php://input');
-
-$data = json_decode($jsonData, true); 
-
-$username = trim($data["username"]);
+// it has already been sanitised and validated by this stage
+$username = ($_POST["username"]);
 
 // get the password for that particular username from the database
 $query = "SELECT score, attemptDate

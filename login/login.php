@@ -5,7 +5,7 @@
 // $response = array("success" => "Successfully accessed PHP.");
 // echo json_encode($response);
 
-require_once ("./settings.php");
+require_once ("../settings.php");
 $conn = @mysqli_connect($host, $user, $pwd, $sql_db);
 
 if (!$conn) {
@@ -14,24 +14,9 @@ if (!$conn) {
     exit;
 }
 
-// get the data that was posted
-$jsonData = file_get_contents('php://input');
-
-$data = json_decode($jsonData, true); 
-
-$username = trim($data["username"]);
-$password = trim($data["password"]);
-
-// don't need to do this
-// $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-
-// view the data that was sent up (by sending it back down)
-// $responseData = array(
-//     "username" => $username,
-//     "password" => $password
-// )
-// header("Content-Type: application/json");
-// echo json_encode($responseData);
+// get the data that was posted, and send it to a function to sanitise it
+$username = sanitise_input($_POST["username"]);
+$password = sanitise_input($_POST["password"]);
 
 // get the password for that particular username from the database
 $query = "SELECT *
@@ -50,21 +35,15 @@ $response = array(
 // will either be a row or null
 $row = mysqli_fetch_assoc($result);
 
-/* else if ($row["password"] !== $hashedPassword)
-    this surprisingly didn't work
-    the hash produced changed each time? due to a random salt or something
-    need to use the password_verify(plaintext, hashed) instead
-*/
-
 $checkVerify = password_verify($password, $row["password"]);
 
 // determine the outcome
 if (!$row) {
-    $response["message"] = "no rows returned";
+    $response["message"] = "User not found.";
 } else if (!$result) {
-    $response["message"] = "error connecting to database";
+    $response["message"] = "Error connecting to database";
 } else if (!password_verify($password, $row["password"])) {
-    $response["message"] = "incorrect password";
+    $response["message"] = "The password you entered is incorrect.";
 } else {
     $response["success"] = true;
     $response["isAdmin"] = $row["isAdmin"];
@@ -76,5 +55,13 @@ echo json_encode($response);
 
 mysqli_free_result($result);
 mysqli_close($conn);
+
+// COS60004 Lab 08 - Server-side Data Validation
+function sanitise_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
 
 ?>

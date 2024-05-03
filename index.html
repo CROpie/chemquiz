@@ -1,18 +1,55 @@
 <!DOCTYPE html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <script src="./login.js" defer></script>
+    <title>Login Page</title>
+    <link rel="stylesheet" href="./login/login.css" />
+    <script src="./login/login.js" defer></script>
   </head>
+
   <body>
-    <h1>Welcome to ChemQuiz</h1>
-    <p>Please log in to continue</p>
-    <label for="username">Username</label>
-    <input type="text" id="username" value="chris" />
-    <label for="password">Password</label>
-    <input type="password" id="password" value="fishandchips" />
-    <button type="submit" id="submitBtn">Submit</button>
+    <div class="container content form form1" id="form1">
+      <form class="needs-validation" id="loginForm" novalidate>
+        <h1 class="h1">Log In</h1>
+
+        <div class="form-floating mb-4">
+          <input
+            type="text"
+            id="username"
+            class="form-control"
+            placeholder="forstyling"
+            name="username"
+            required
+          />
+          <label for="floatingInput">Username</label>
+          <div id="invalid-username" class="invalid-feedback"></div>
+        </div>
+
+        <div class="form-floating mb-4">
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            placeholder="forStyling"
+            name="password"
+            required
+          />
+          <!-- pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" -->
+          <label for="floatingPassword">Password</label>
+          <div id="invalid-password" class="invalid-feedback"></div>
+        </div>
+
+        <div class="form-check mb-4">
+          <input class="form-check-input" type="checkbox" id="flexCheckIndeterminate" />
+
+          <label class="form-check-label" for="flexCheckIndeterminate">Show Password</label>
+        </div>
+
+        <div class="signup_button"><button id="submitBtn">Log In</button></div>
+        <div id="invalid-submit" class="invalid-feedback"></div>
+      </form>
+    </div>
   </body>
 </html>
