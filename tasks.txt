@@ -1,5 +1,12 @@
 Chris
 
+cascade delete where relevant
+modify: score, modify: username, password
+store name in database in lowercase
+add name: check for existing name, can't add if exists
+
+show admin login details and student login details on login page
+
 write questions:
     2 difficulty
         10 x questionType = 40
@@ -20,3 +27,14 @@ results.hs (sessionStorage)
 Queries for welcome page (& for results page)
 Button to go back to welcome page
 css
+
+
+-----------
+LOGIN
+student username = name@student.instatute.edu.au?
+admin username = name@instatute.edu.au?
+
+Validate for username in this format?
+
+Add new user: check for existing name, add @... depending on isAdmin or not? ie just type in the name itself
+

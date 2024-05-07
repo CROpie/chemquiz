@@ -13,6 +13,7 @@ function renderTotalScore(totalScore, numQuestions) {
       <span class="${totalScore / numQuestions < 0.5 ? 'red' : 'green'}">${totalScore * 10}</span>
      / ${numQuestions * 10}
      </p>
+     <a href="../welcome/welcome.html"><button type="button">Return</button></a>
   `
 
   newLiItem.innerHTML = template

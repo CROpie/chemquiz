@@ -1,0 +1,102 @@
+1. LOGIN: Amiraj
+
+UI: got ideas from bootstrap
+Input fields, 
+Show password Button
+Submit
+
+
+
+What happens when press Submit
+    Data sent to PHP by JS Fetch with FormData
+
+    Validation (login.js)
+        Examples: no username or no password
+                Unknown user
+                Incorrect password
+
+    Admin login & User login (login.php)
+        Database table: User
+            * passwords are hashed
+    Username: as if it comes from instatute
+        @student.instatute.edu.au @instatute.edu.au
+    
+    Admins get directed to the admin page, students get directed to the student page
+
+2. ADMIN: Layan
+
+UI: menu for different table manipulation
+
+Which of CRUD is possible
+On opening the page, GET to show all rows of the table as a table
+(Show php GET and JS render)
+
+    1. Users
+        Add, Modify or Delete user
+            Modify: username, password
+            -> Cascade Delete
+            Add: check if user exists already. Admin can add a number to add 2 users of the same name
+            password gets hashed
+        checkbox for admin or not admin
+    2. Scores
+        Modify or Delete score
+
+    3. questions: Chris will discuss chemical structure stuff during his part...
+        3a Reaction
+        3b Structure
+
+
+3. WELCOME: Henil
+
+UI
+A table for user's recent attempts (highest score + avg score of prev 3 attempts?), as well as a leaderboard showing the best result of 3 different users
+
+A checkbox for changing the difficulty - currently difficult or not, but more difficulties could be implemented at a later dateJoined
+
+When a user logs in, the data is taken from the database and stored in sessionStorage as a JSON string
+
+When results.html loads, it takes this data and renders it using JS.
+
+
+--------------------------
+
+
+LOGIN
+
+1) STUDENTS SHOULD BE ABLE TO LOGIN
+    how to do it via the UI
+    how it was programmed
+
+2) ADMIN SHOULD BE ABLE TO LOGIN
+
+3) USERS SHOULD GET FEEDBACK BASED ON WHAT ACTIONS THEY PERFORM?
+
+ADMIN
+
+1)  ADMINS SHOULD BE ABLE TO ADD USERS
+    ADMINS SHOULD BE ABLE TO MODIFY EXISTING USERS
+    ADMINS SHOULD BE ABLE TO DELETE USERS
+
+2)  ADMINS SHOULD BE ABLE TO MODIFY EXISTING SCORES
+    ADMINS SHOULD BE ABLE TO DELETE SCORES
+
+3)  ADMINS SHOULD BE ABLE TO ADD NEW QUESTIONS
+    ADMINS SHOULD BE ABLE TO MODIFY EXISTING QUESTIONS
+    ADMINS SHOULD BE ABLE TO DELETE QUESTIONS
+
+WELCOME
+
+1) STUDENTS SHOULD BE ABLE TO VIEW SOME RELEVANT RESULTS HISTORY
+
+2) STUDENTS SHOULD BE ABLE TO VIEW SOME RESULTS OF THEIR PEERS
+
+3) STUDENTS SHOULD BE ABLE TO MODIFY THE DIFFICULTY OF A QUIZ
+
+4) STUDENTS SHOULD BE ABLE TO START THE QUIZ
+
+QUESTIONS
+
+
+1) STUDENTS SHOULD BE PROVIDED CHEMISTRY BASED QUESTIONS WHERE THEY HAVE TO SELECT THE CORRECT STRUCTURE OUT OF A FEW CHOICES
+
+2) STUDENTS SHOULD BE ABLE TO INPUT A STRUCTURE AS AN ANSWER TO SOME QUESTIONS
