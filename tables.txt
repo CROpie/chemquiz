@@ -28,6 +28,7 @@ CREATE TABLE Scores (
     score INT NOT NULL,
     attemptDate DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (userId) REFERENCES Users(userId)
+    ON DELETE CASCADE
 );
 
 INSERT INTO Scores (userId, score)
@@ -75,3 +76,7 @@ CREATE TABLE ReactionQ (
     time TEXT,
     difficulty INT NOT NULL
 );
+
+UPDATE Users
+    SET username = 'Chris', dateJoined = '2024-01-01'
+    WHERE userId = '24';

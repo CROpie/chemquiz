@@ -8,6 +8,7 @@
     <script src="../../../node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
     <script src="./structure_questions.js" type="module" defer></script>
     <link rel="stylesheet" href="structure_questions.css" />
+    <link rel="stylesheet" href="../../nav.css" />
   </head>
   <body>
     <script>
@@ -16,7 +17,13 @@
       }
     </script>
     <main>
-      <a href="../admin_questions.html">BACK</a>
+      <nav>
+        <a href="../admin_questions.html">BACK</a>
+        <a href="../../users/admin_users.html">ADMIN USERS</a>
+        <a href="../../questions/admin_questions.html">ADMIN QUESTIONS</a>
+        <a href="../../scores/admin_scores.html">ADMIN SCORES</a>
+      </nav>
+
       <section id="add-structureQ-container">
         <h2>Add New Structure Question</h2>
         <div id="new-structureQ-container">
@@ -24,11 +31,16 @@
         </div>
       </section>
 
+      <section id="message-container">
+        <p id="response-message"></p>
+      </section>
+
       <section id="existing-structureQ-container">
         <h2>Modify or Delete Structure Question</h2>
         <ul id="existing-structureQ-list"></ul>
         <!-- render dynamically -->
       </section>
+
       <section id="jsme-storage">
         <div id="jsme_container"></div>
       </section>

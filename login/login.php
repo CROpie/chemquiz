@@ -6,6 +6,7 @@
 // echo json_encode($response);
 
 require_once ("../settings.php");
+require_once("../utils/sanitiseinput.php");
 $conn = @mysqli_connect($host, $user, $pwd, $sql_db);
 
 if (!$conn) {
@@ -56,12 +57,6 @@ echo json_encode($response);
 mysqli_free_result($result);
 mysqli_close($conn);
 
-// COS60004 Lab 08 - Server-side Data Validation
-function sanitise_input($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
-}
+
 
 ?>

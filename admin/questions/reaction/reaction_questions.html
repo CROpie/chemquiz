@@ -7,7 +7,8 @@
     <script src="../../../node_modules/jsme-editor/jsme.nocache.js"></script>
     <script src="../../../node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
     <script src="./reaction_questions.js" type="module" defer></script>
-    <link rel="stylesheet" href="reaction_questions.css" />
+    <link rel="stylesheet" href="./reaction_questions.css" />
+    <link rel="stylesheet" href="../../nav.css" />
   </head>
   <body>
     <script>
@@ -16,12 +17,22 @@
       }
     </script>
     <main>
-      <a href="../admin_questions.html">BACK</a>
+      <nav>
+        <a href="../admin_questions.html">BACK</a>
+        <a href="../../users/admin_users.html">ADMIN USERS</a>
+        <a href="../../questions/admin_questions.html">ADMIN QUESTIONS</a>
+        <a href="../../scores/admin_scores.html">ADMIN SCORES</a>
+      </nav>
+
       <h2>Add New Reaction Question</h2>
       <section id="add-reactionQ-container">
         <div id="new-reactionQ-container"></div>
         <!-- render add new dynamically -->
         <div id="button-container"></div>
+      </section>
+
+      <section id="message-container">
+        <p id="response-message"></p>
       </section>
 
       <h2>Modify or Delete Reaction Question</h2>

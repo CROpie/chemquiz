@@ -109,8 +109,6 @@ async function handleSubmit(event) {
 
   const json2 = await response2.json()
 
-  console.log(json2)
-
   sessionStorage.setItem('userInfo', JSON.stringify({ username, userId: json.userId }))
   sessionStorage.setItem('userScores', JSON.stringify(json2.data))
   window.location.href = './welcome/welcome.html'

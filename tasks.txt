@@ -1,31 +1,41 @@
 Chris
 
-cascade delete where relevant
-modify: score, modify: username, password
-store name in database in lowercase
-add name: check for existing name, can't add if exists
+!conn needs to be in try/catch instead
 
-show admin login details and student login details on login page
+don't allow deleting admin // P@ssw0rd
+
+use 
+
+// prepare an object that will be sent back to client
+$response = array(
+    "success" => false,
+    "message" => ""
+);
+
+
+FUTURE STUFF
 
 write questions:
     2 difficulty
         10 x questionType = 40
 
-implement difficulty in the relevant parts of the project
+show example admin login details and student login details on login page
 
 lobby: use Arun's SQL queries
-Investigate making a graph
+
+Investigate making a graph?
 
 Arun
 
 Debugger for fun
-Combine Chem structures with results page
+
+results message
 
 results.php
     userScores && leaderboard
 results.hs (sessionStorage)
 Queries for welcome page (& for results page)
-Button to go back to welcome page
+
 css
 
 

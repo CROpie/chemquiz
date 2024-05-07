@@ -3,19 +3,28 @@ import { initializeJsme, getJsme, getJsmeApplet, hideJsme } from '../../../utils
 
 /* FETCH FUNCTIONS */
 async function getData() {
+  const msgArea = document.getElementById('response-message')
+
   const response = await fetch('structure_questions.php')
 
   if (!response.ok) {
-    console.log('something went wrong...')
-    return
+    msgArea.textContent = 'Error fetching data.'
+    return false
   }
 
   const json = await response.json()
+
+  if (!json.success) {
+    msgArea.textContent = json.message
+    return false
+  }
 
   return json.data
 }
 
 async function handleSubmit(session) {
+  const msgArea = document.getElementById('response-message')
+
   const { editData } = session.getState()
 
   const response = await fetch('./structure_questions.php', {
@@ -27,29 +36,47 @@ async function handleSubmit(session) {
   })
 
   if (!response.ok) {
-    console.log('something went wrong...')
-    return
+    msgArea.textContent = 'Error fetching data.'
+    return false
   }
 
   const json = await response.json()
 
+  if (!json.success) {
+    msgArea.textContent = json.message
+    return false
+  }
+
   session.init(json.data)
+
+  // Don't really like how success message looks. Would be better as a toast..
+  // msgArea.textContent = json.message
 }
 
 async function handleDeleteItem(session, structureId) {
+  const msgArea = document.getElementById('response-message')
+
   const response = await fetch(`structure_questions.php?structureId=${structureId}`, {
     method: 'DELETE',
   })
 
   if (!response.ok) {
-    console.log('something went wrong...')
-    return
+    msgArea.textContent = 'Error fetching data.'
+    return false
   }
 
   const json = await response.json()
 
+  if (!json.success) {
+    msgArea.textContent = json.message
+    return false
+  }
+
   // call render with updated data
   session.init(json.data)
+
+  // Don't really like how success message looks. Would be better as a toast..
+  // msgArea.textContent = json.message
 }
 
 /* RENDER FUNCTIONS */
@@ -278,6 +305,8 @@ function initCurrentSession() {
   }
 
   function renderAll() {
+    document.getElementById('response-message').textContent = ''
+
     // rendering the screen causes the scroll bar to momentarily disappear
     // this means that after the scrollbar comes back, the items are in a different position
     // can take the current position, then set it at the end of the function
@@ -343,6 +372,8 @@ async function init() {
   initializeJsme()
 
   const existingQData = await getData()
+
+  if (!existingQData) return
 
   // create a closure for storing the data for the page
   const currentSession = initCurrentSession()

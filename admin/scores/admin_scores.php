@@ -1,30 +1,55 @@
 <?php
 
 require_once ("../../settings.php");
+require_once("../../utils/sanitiseinput.php");
 
-$conn = @mysqli_connect($host, $user, $pwd, $sql_db);
 $sql_table = 'Scores';
 
-if (!$conn) {
-    $response = array("error" => "Error connecting to the database.");
+$response = array(
+    "success" => false,
+    "message" => ""
+);
+
+// attempt to create a connection to the database
+try {
+    $conn = mysqli_connect($host, $user, $pwd, $sql_db);
+} catch (mysqli_sql_exception $e) {
+    $response["message"] = $e->getMessage();
     echo json_encode($response);
     exit;
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    $response = handleGetData($conn, $sql_table, $response);
 
-    handleGetData($conn, $sql_table);
+    echo json_encode($response);
+    
+    mysqli_close($conn);
+
+    exit;
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
+    $response = handlePatchData($conn, $sql_table, $response);
+    
+    echo json_encode($response);
+    
+    mysqli_close($conn);
+
     exit;
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
-    handleDeleteData($conn, $sql_table);
+    $response = handleDeleteData($conn, $sql_table, $response);
+    
+    echo json_encode($response);
+    
+    mysqli_close($conn);
+
     exit;
 }
 
-
-
-function handleGetData($conn, $sql_table) {
+function handleGetData($conn, $sql_table, $response) {
 
     $query = "SELECT gameId, username, score, attemptDate
     FROM $sql_table
@@ -33,12 +58,10 @@ function handleGetData($conn, $sql_table) {
 
     $result = mysqli_query($conn, $query);
 
-
-    // validation of results
+    // error handling for unable to connect to db
     if (!$result) {
-        $response = array("error" => "Query execution failure.");
-        echo json_encode($response);
-        exit;
+        $response["message"] =  "Couldn't fetch the data.";
+        return $response;
     }
 
     $data = array();
@@ -47,19 +70,57 @@ function handleGetData($conn, $sql_table) {
         $data[] = $row;
     }
 
+    $response["success"] = true;
+    $response["data"] = $data;
+
     mysqli_free_result($result);
 
-    mysqli_close($conn);
+    return $response;
+}
 
-    header("Content-Type: application/json");
-    echo json_encode($data);
+function handlePatchData($conn, $sql_table, $response) {
+    // get the data that was posted
+    $jsonData = file_get_contents('php://input');
 
+    // $editScoreData: {gameId: number, username: string, score: number, attemptDate: string}
+    $editScoreData = json_decode($jsonData, true);
+
+    // extract the relevant properties
+    $gameId = sanitise_input($editScoreData["gameId"]);
+    $score = sanitise_input($editScoreData["score"]);
+
+    // validate user inputted data
+    if (!validateScore($score)) {
+        $response["message"] = "Error: invalid score. Scores must be between 0 and 10 inclusive.";
+        return $response;
+    }
+
+    // write the sql query
+    $query = "UPDATE Scores
+    SET score = '$score'
+    WHERE gameId = '$gameId';";
+
+    $result = mysqli_query($conn, $query);
+
+    // error handling for unable to connect to db
+    if (!$result) {
+        $response["message"] = "Error: failed to add the user to the database.";
+        return $response;
+    }
+
+    $response["success"] = true;
+    $response["message"] = "Successfully changed the score.";
+
+    // no error, so get the updated data from the database
+    $response = handleGetData($conn, $sql_table, $response);
+
+    return $response;
 }
 
 function handleDeleteData($conn, $sql_table) {
 
     // get the user id from query parameters
-    $gameId = $_GET['gameId'];
+    $gameId = sanitise_input($_GET['gameId']);
 
     // write the sql query
     $query = "DELETE FROM $sql_table
@@ -70,14 +131,26 @@ function handleDeleteData($conn, $sql_table) {
 
     // error handling for unable to connect to db
     if (!$result) {
-        $response = array("error" => "Query execution failure.");
-        echo json_encode($response);
-        exit;
+        $response["message"] = "Error: failed to add the user to the database.";
+        return $response;
     }
 
+    $response["success"] = true;
+    $response["message"] = "Successfully deleted the record.";
+
     // success, so get the updated data
-    handleGetData($conn, $sql_table);
+    $response = handleGetData($conn, $sql_table, $response);
+
+    return $response;
 }
 
-
+function validateScore($score) {
+    if (!preg_match("/^[0-9]+$/", $score)) {
+        return false;
+    }
+    if ((int) $score < 0 || (int) $score > 10) {
+        return false;
+    }
+    return true;
+}
 ?>

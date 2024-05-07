@@ -1,17 +1,20 @@
 <?php
 
 require_once ("../../../settings.php");
-$conn = @mysqli_connect($host, $user, $pwd, $sql_db);
+require_once("../../../utils/sanitiseinput.php");
+
 $sql_table = "ReactionQ";
 
 $response = array(
     "success" => false,
     "message" => "",
-    "data" => null
 );
 
-if (!$conn) {
-    $response = array("error" => "Error connecting to the database.");
+// attempt to create a connection to the database
+try {
+    $conn = mysqli_connect($host, $user, $pwd, $sql_db);
+} catch (mysqli_sql_exception $e) {
+    $response["message"] = $e->getMessage();
     echo json_encode($response);
     exit;
 }
@@ -78,8 +81,6 @@ function handleGetData($conn, $sql_table, $response) {
     mysqli_free_result($result);
 
     return $response;
-
-
 }
 
 function handlePutData($conn, $sql_table, $response) {
@@ -87,27 +88,38 @@ function handlePutData($conn, $sql_table, $response) {
     $jsonData = json_decode($data, true);
 
     // if adding a new question, this will be null
-    $reactionId = $jsonData["reactionId"];
+    $reactionId = sanitise_input($jsonData["reactionId"]);
+
+    $reactant = sanitise_input($jsonData["reactant"]);
+    $reagent = sanitise_input($jsonData["reagent"]);
+    $productSmile = sanitise_input($jsonData["productSmile"]);
+    $productInchi = sanitise_input($jsonData["productInchi"]);
+    $catalyst = sanitise_input($jsonData["catalyst"]);
+    $solvent = sanitise_input($jsonData["solvent"]);
+    $temperature = sanitise_input($jsonData["temperature"]);
+    $time = sanitise_input($jsonData["time"]);
+    $difficulty = sanitise_input($jsonData["difficulty"]);
+
 
     $query = '';
 
     if ($reactionId) {
         $query = "UPDATE $sql_table
         SET 
-        reactant = '{$jsonData["reactant"]}',
-        reagent = '{$jsonData["reagent"]}',
-        productSmile = '{$jsonData["productSmile"]}',
-        productInchi = '{$jsonData["productInchi"]}',
-        catalyst = '{$jsonData["catalyst"]}',
-        solvent = '{$jsonData["solvent"]}',
-        temperature = '{$jsonData["temperature"]}',
-        time = '{$jsonData["time"]}',
-        difficulty = '{$jsonData["difficulty"]}'
+        reactant = '$reactant',
+        reagent = '$reagent',
+        productSmile = '$productSmile',
+        productInchi = '$productInchi',
+        catalyst = '$catalyst',
+        solvent = '$solvent',
+        temperature = '$temperature',
+        time = '$time',
+        difficulty = '$difficulty'
         WHERE reactionId = $reactionId";
     } else {
         $query = "INSERT INTO $sql_table (reactant, reagent, productSmile, productInchi, catalyst, solvent, temperature, time, difficulty)
         VALUES
-        ('{$jsonData["reactant"]}','{$jsonData["reagent"]}','{$jsonData["productSmile"]}','{$jsonData["productInchi"]}','{$jsonData["catalyst"]}','{$jsonData["solvent"]}','{$jsonData["temperature"]}','{$jsonData["time"]}','{$jsonData["difficulty"]}')";
+        ('$reactant','$reagent','$productSmile','$productInchi','$catalyst','$solvent','$temperature','$time','$difficulty')";
     }
 
     $result = mysqli_query($conn, $query);
@@ -117,6 +129,9 @@ function handlePutData($conn, $sql_table, $response) {
         return $response;
     }
 
+    $response["success"] = true;
+    $response["message"] = "Successfully added or modified question.";
+
     // Obtain the updated data
     $response = handleGetData($conn, $sql_table, $response);
 
@@ -124,7 +139,7 @@ function handlePutData($conn, $sql_table, $response) {
 }
 
 function handleDeleteData($conn, $sql_table, $response) {
-    $reactionId = $_GET["reactionId"];
+    $reactionId = sanitise_input($_GET["reactionId"]);
 
     $query = "DELETE FROM $sql_table
     WHERE
@@ -136,6 +151,9 @@ function handleDeleteData($conn, $sql_table, $response) {
         $response["message"] = "error connecting to database..";
         return $response;
     }
+
+    $response["success"] = true;
+    $response["message"] = "Successfully deleted question.";
 
     // Obtain the updated data
     $response = handleGetData($conn, $sql_table, $response);

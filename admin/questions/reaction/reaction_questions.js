@@ -6,35 +6,53 @@ import { ARROW_SVG, PLUS_SVG } from '../../../utils/svgs.js'
 /* FETCH FUNCTIONS */
 // fetch list of existing reactions
 async function getData() {
+  const msgArea = document.getElementById('response-message')
+
   const response = await fetch('reaction_questions.php')
 
   if (!response.ok) {
-    console.log('something went wrong...')
-    return
+    msgArea.textContent = 'Error fetching data.'
+    return false
   }
-
   const json = await response.json()
+
+  if (!json.success) {
+    msgArea.textContent = json.message
+    return false
+  }
 
   return json.data
 }
 
 async function handleDeleteItem(session, reactionId) {
+  const msgArea = document.getElementById('response-message')
+
   const response = await fetch(`reaction_questions.php?reactionId=${reactionId}`, {
     method: 'DELETE',
   })
 
   if (!response.ok) {
-    console.log('something went wrong...')
-    return
+    msgArea.textContent = 'Error fetching data.'
+    return false
   }
 
   const json = await response.json()
 
+  if (!json.success) {
+    msgArea.textContent = json.message
+    return false
+  }
+
   // call render with updated data
   session.init(json.data)
+
+  // Don't really like how success message looks. Would be better as a toast..
+  // msgArea.textContent = json.message
 }
 
 async function handleSubmit(session) {
+  const msgArea = document.getElementById('response-message')
+
   const { editData } = session.getState()
   // if only 1 structure, store in structure1
   if (!editData.reactant && editData.reagent) {
@@ -57,13 +75,21 @@ async function handleSubmit(session) {
   })
 
   if (!response.ok) {
-    console.log('something went wrong...')
-    return
+    msgArea.textContent = 'Error fetching data.'
+    return false
   }
 
   const json = await response.json()
 
+  if (!json.success) {
+    msgArea.textContent = json.message
+    return false
+  }
+
   session.init(json.data)
+
+  // Don't really like how success message looks. Would be better as a toast..
+  // msgArea.textContent = json.message
 }
 
 /* RENDER FUNCTIONS */
@@ -188,7 +214,7 @@ function renderBigButton(session) {
   const newReactionQContainer = document.getElementById('new-reactionQ-container')
 
   const template = `
-        <button id="new-editBtn">BIG BUTTON</button>
+        <button id="new-editBtn">Click to create a new reaction question</button>
     `
 
   newReactionQContainer.innerHTML = template

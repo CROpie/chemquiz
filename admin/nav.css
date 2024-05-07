@@ -1,0 +1,8 @@
+nav {
+  border: 2px solid orchid;
+  background: white;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

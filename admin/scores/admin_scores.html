@@ -6,9 +6,16 @@
     <title>Document</title>
     <script src="./admin_scores.js" defer></script>
     <link rel="stylesheet" href="admin_scores.css" />
+    <link rel="stylesheet" href="../nav.css" />
   </head>
   <body>
-    <a href="../admin.html">BACK</a>
+    <nav>
+      <a href="../admin.html">BACK</a>
+      <a href="../users/admin_users.html">ADMIN USERS</a>
+      <a href="../questions/admin_questions.html">ADMIN QUESTIONS</a>
+      <a href="..scores/admin_scores.html">ADMIN SCORES</a>
+    </nav>
+
     <h1>Admin Scores Page</h1>
     <h3>Scores table</h3>
     <table>
@@ -18,6 +25,7 @@
           <td>username</td>
           <td>score</td>
           <td>attempt date</td>
+          <td>EDIT</td>
           <td>DEL</td>
         </tr>
       </thead>
@@ -25,5 +33,8 @@
         <!-- dynamically add data here -->
       </tbody>
     </table>
+    <section id="message-container">
+      <p id="response-message"></p>
+    </section>
   </body>
 </html>

@@ -1,17 +1,20 @@
 <?php
 
 require_once ("../../../settings.php");
-$conn = @mysqli_connect($host, $user, $pwd, $sql_db);
+require_once("../../../utils/sanitiseinput.php");
+
 $sql_table = "StructureQ";
 
 $response = array(
     "success" => false,
     "message" => "",
-    "data" => null
 );
 
-if (!$conn) {
-    $response = array("error" => "Error connecting to the database.");
+// attempt to create a connection to the database
+try {
+    $conn = mysqli_connect($host, $user, $pwd, $sql_db);
+} catch (mysqli_sql_exception $e) {
+    $response["message"] = $e->getMessage();
     echo json_encode($response);
     exit;
 }
@@ -78,33 +81,43 @@ function handleGetData($conn, $sql_table, $response) {
     mysqli_free_result($result);
 
     return $response;
-
-
 }
 
 function handlePutData($conn, $sql_table, $response) {
     $data = file_get_contents("php://input");
     $jsonData = json_decode($data, true);
 
+    if (!validateUniqueResponses($jsonData)) {
+        $response["message"] = "Error: all options must be unique.";
+        return $response;
+    }
+
     // if adding a new question, this will be null
-    $structureId = $jsonData["structureId"];
+    $structureId = sanitise_input($jsonData["structureId"]);
+    
+    $molecule = sanitise_input($jsonData["molecule"]);
+    $answer = sanitise_input($jsonData["answer"]);
+    $incorrect1 = sanitise_input($jsonData["incorrect1"]);
+    $incorrect2 = sanitise_input($jsonData["incorrect2"]);
+    $incorrect3 = sanitise_input($jsonData["incorrect3"]);
+    $difficulty = sanitise_input($jsonData["difficulty"]);
 
     $query = '';
 
     if ($structureId) {
         $query = "UPDATE $sql_table
         SET 
-        molecule = '{$jsonData["molecule"]}',
-        answer = '{$jsonData["answer"]}',
-        incorrect1 = '{$jsonData["incorrect1"]}',
-        incorrect2 = '{$jsonData["incorrect2"]}',
-        incorrect3 = '{$jsonData["incorrect3"]}',
-        difficulty = '{$jsonData["difficulty"]}'
+        molecule = '$molecule',
+        answer = '$answer',
+        incorrect1 = '$incorrect1',
+        incorrect2 = '$incorrect2',
+        incorrect3 = '$incorrect3',
+        difficulty = '$difficulty'
         WHERE structureId = $structureId";
     } else {
         $query = "INSERT INTO $sql_table (molecule, answer, incorrect1, incorrect2, incorrect3, difficulty)
         VALUES
-        ('{$jsonData["molecule"]}','{$jsonData["answer"]}','{$jsonData["incorrect1"]}','{$jsonData["incorrect2"]}','{$jsonData["incorrect3"]}','{$jsonData["difficulty"]}')";
+        ('$molecule','$answer','$incorrect1','$incorrect2','$incorrect3','$difficulty')";
     }
 
     $result = mysqli_query($conn, $query);
@@ -114,6 +127,9 @@ function handlePutData($conn, $sql_table, $response) {
         return $response;
     }
 
+    $response["success"] = true;
+    $response["message"] = "Successfully added or modified question.";
+
     // Obtain the updated data
     $response = handleGetData($conn, $sql_table, $response);
 
@@ -121,7 +137,7 @@ function handlePutData($conn, $sql_table, $response) {
 }
 
 function handleDeleteData($conn, $sql_table, $response) {
-    $structureId = $_GET["structureId"];
+    $structureId = sanitise_input($_GET["structureId"]);
 
     $query = "DELETE FROM $sql_table
     WHERE
@@ -137,7 +153,26 @@ function handleDeleteData($conn, $sql_table, $response) {
     // Obtain the updated data
     $response = handleGetData($conn, $sql_table, $response);
 
+    $response["success"] = true;
+    $response["message"] = "Successfully deleted question.";
+
     return $response;
+}
+
+function validateUniqueResponses($jsonData) {
+    // Set() doesn't exist in PHP, but this has the same effect
+    // the "key" for the associative array has to be unique
+    // therefore if there are duplicates, the number of keys in the array will be less than 4
+    $uniqueStrings = [];
+    $uniqueStrings[$jsonData["answer"]] = true;
+    $uniqueStrings[$jsonData["incorrect1"]] = true;
+    $uniqueStrings[$jsonData["incorrect2"]] = true;
+    $uniqueStrings[$jsonData["incorrect3"]] = true;
+
+    if (count($uniqueStrings) === 4) {
+        return true;
+    }
+    return false;
 }
 
 ?>

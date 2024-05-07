@@ -38,7 +38,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 if (empty($data)) {
     // if the array has no values, ie no rows were returned
     $response["success"] = true;
-    $response["message"] = "no rows returned";
+    $response["message"] = "not an error but no rows returned";
+    $response["data"] = $data;
 } else if (!$result) {
     $response["message"] = "error connecting to database";
 } else {

@@ -1,34 +1,67 @@
 async function getData() {
+  const msgArea = document.getElementById('response-message')
+
   const response = await fetch('./admin_users.php')
+
   if (!response.ok) {
-    console.log('something went wrong')
-    return
+    msgArea.textContent = 'Error fetching data.'
+    return false
   }
 
+  // json = { success: boolean, message: string, data: [{userId: number, username: string, dateJoined: string, isAdmin: enum("0" | "1")]}
   const json = await response.json()
 
-  return json
+  if (!json.success) {
+    msgArea.textContent = json.message
+    return false
+  }
+
+  return json.data
 }
 
 async function handleDelete(userId) {
+  const msgArea = document.getElementById('response-message')
+
   const response = await fetch(`./admin_users.php?userId=${userId}`, {
     method: 'DELETE',
   })
 
   if (!response.ok) {
-    console.log('something went wrong...')
+    msgArea.textContent = 'Error fetching data.'
     return
   }
 
   // if successful, this json will contain the updated users information so it can be rendered immediately
   const json = await response.json()
 
-  renderUsers(json)
+  if (!json.success) {
+    // show error message
+    msgArea.textContent = json.message
+    return
+  }
 
-  console.log(json)
+  renderUsers(json.data)
+
+  // show success message
+  msgArea.textContent = json.message
+}
+
+function resetFields() {
+  // reset new password section if it was open
+  document.getElementById('replace-password-container').innerHTML = ''
+
+  // reset any error or success messages
+  document.getElementById('response-message').textContent = ''
+
+  // reset input fields (username, password)
+  document.getElementById('username').value = ''
+  document.getElementById('password').value = ''
+  document.getElementById('admin').checked = false
 }
 
 function renderUsers(usersData) {
+  resetFields()
+
   const TBODY = document.getElementById('tbody')
 
   // if TBODY has any data, clear it
@@ -39,10 +72,12 @@ function renderUsers(usersData) {
     const trow = document.createElement('tr')
 
     const rowTemplate = `
-      <td>${usersData[i].userId}</td>
-      <td>${usersData[i].username}</td>
-      <td>${usersData[i].dateJoined}</td>
-      <td>${usersData[i].isAdmin === '1' ? 'yes' : 'no'}</td>
+      <td id="userId-${i}">${usersData[i].userId}</td>
+      <td id="username-${i}">${usersData[i].username}</td>
+      <td id="dateJoined-${i}">${usersData[i].dateJoined}</td>
+      <td id="isAdmin-${i}">${usersData[i].isAdmin === '1' ? 'yes' : 'no'}</td>
+      <td id="editTd-${i}"><button id="editBtn-${i}">E</button></td>
+      <td id="passTd-${i}"><button id="passBtn-${i}">P</button></td>
       <td><button id="delBtn-${i}">X</button></td>
     `
 
@@ -53,10 +88,148 @@ function renderUsers(usersData) {
     document
       .getElementById(`delBtn-${i}`)
       .addEventListener('click', () => handleDelete(usersData[i].userId))
+
+    document
+      .getElementById(`passBtn-${i}`)
+      .addEventListener('click', () => handleNewPassword(usersData, i))
+
+    document
+      .getElementById(`editBtn-${i}`)
+      .addEventListener('click', () => handleEditUser(usersData, i))
   }
 }
 
+function handleNewPassword(usersData, i) {
+  renderUsers(usersData)
+
+  const container = document.getElementById('replace-password-container')
+
+  const template = `
+    <h2>Replace Password</h2>
+    <label for="input-pass-${i}">New password for ${usersData[i].username}:</label>
+    <input id="input-pass-${i}" type="text" />
+    <button type="button" id="cancelBtn">Cancel</button>
+    <button type="button" id="saveBtn">Save</button>
+  `
+
+  container.innerHTML = template
+
+  document.getElementById('cancelBtn').addEventListener('click', () => renderUsers(usersData))
+  document
+    .getElementById('saveBtn')
+    .addEventListener('click', () => handleSaveNewPassword(usersData, i))
+
+  document.getElementById(`input-pass-${i}`).focus()
+}
+
+async function handleSaveNewPassword(usersData, i) {
+  const msgArea = document.getElementById('response-message')
+
+  const newPassword = document.getElementById(`input-pass-${i}`).value
+
+  const updatedUsersData = { ...usersData[i], password: newPassword }
+
+  const response = await fetch('./admin_users.php', {
+    method: 'PUT',
+    body: JSON.stringify(updatedUsersData),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    msgArea.textContent = 'Error fetching data.'
+    return
+  }
+
+  // json = [{userId, username, dateJoined, isAdmin}]
+  const json = await response.json()
+
+  if (!json.success) {
+    // show error message
+    msgArea.textContent = json.message
+    return
+  }
+
+  renderUsers(json.data)
+
+  // show success message
+  msgArea.textContent = json.message
+}
+
+async function handleSaveEditUser(usersData, i) {
+  const msgArea = document.getElementById('response-message')
+
+  const editedUserData = {}
+
+  for (const key of Object.keys(usersData[i])) {
+    editedUserData[key] = document.getElementById(`input-${key}-${i}`).value
+  }
+
+  const response = await fetch('./admin_users.php', {
+    method: 'PATCH',
+    body: JSON.stringify(editedUserData),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    msgArea.textContent = 'Error fetching data.'
+    return
+  }
+
+  const json = await response.json()
+
+  if (!json.success) {
+    // show error message
+    msgArea.textContent = json.message
+    return
+  }
+
+  renderUsers(json.data)
+
+  // show success message
+  msgArea.textContent = json.message
+}
+
+function handleEditUser(usersData, i) {
+  // re-render for the case where someone edits a field while editing a different one
+  renderUsers(usersData)
+
+  // insert input into td's
+  // disable any fields that shouldn't be allowed to be edited
+  for (const [key, value] of Object.entries(usersData[i])) {
+    const td = document.getElementById(`${key}-${i}`)
+    td.innerHTML = `
+      <input 
+        type=${typeof value === 'string' ? 'text' : 'number'}
+        id='input-${key}-${i}' 
+        value=${value}
+        ${key === 'userId' && 'disabled'}
+        ${key === 'dateJoined' && 'disabled'}
+        ${key === 'isAdmin' && 'disabled'}
+      >`
+  }
+
+  // replace edit button with cancel & save buttons
+  const editTd = document.getElementById(`editTd-${i}`)
+  editTd.innerHTML = `
+      <button type="button" id="cancelBtn">Cancel</button>
+      <button type="button" id="saveBtn">Save</button>
+    `
+
+  document.getElementById('cancelBtn').addEventListener('click', () => renderUsers(usersData))
+  document
+    .getElementById('saveBtn')
+    .addEventListener('click', () => handleSaveEditUser(usersData, i))
+
+  document.getElementById(`input-username-${i}`).focus()
+}
+
 async function handleAddNewUser() {
+  const msgArea = document.getElementById('response-message')
+
   const username = document.getElementById('username').value
   const password = document.getElementById('password').value
   const isAdminBool = document.getElementById('admin').checked
@@ -69,16 +242,23 @@ async function handleAddNewUser() {
   })
 
   if (!response.ok) {
-    console.log('something went wrong...')
+    msgArea.textContent = 'Error fetching data.'
     return
   }
 
   // if successful, this json will contain the updated users information so it can be rendered immediately
   const json = await response.json()
 
-  renderUsers(json)
+  if (!json.success) {
+    // show error message
+    msgArea.textContent = json.message
+    return
+  }
 
-  console.log(json)
+  renderUsers(json.data)
+
+  // show success message
+  msgArea.textContent = json.message
 }
 
 async function init() {
@@ -87,6 +267,15 @@ async function init() {
 
   // display existing users
   const usersData = await getData()
+
+  // ie if something went wrong with the database
+  if (!usersData) return
+
+  // print a message if there are no records
+  if (usersData.length < 1) {
+    document.getElementById('response-message').textContent = 'no users!?'
+    return
+  }
 
   renderUsers(usersData)
 }

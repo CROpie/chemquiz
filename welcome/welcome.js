@@ -55,6 +55,8 @@ function renderScores(userScores) {
 
 function init() {
   const userScores = JSON.parse(sessionStorage.getItem('userScores'))
+  console.log(userScores)
+
   const topScores = [
     { username: 'Chris', score: 10, attemptDate: '2024-04-30' },
     { username: 'Arun', score: 9, attemptDate: '2024-03-12' },
