@@ -145,7 +145,31 @@ async function handleFinishQuiz(answers) {
     return
   }
 
+  /* json: 
+    { success: boolean, 
+      message: string, 
+      score: number, 
+      userId: string (eg "30"), 
+      results: boolean[], 
+      leaderBoard: [{
+        userId: string (eg "30"),
+        username: string,
+        attemptDate: string ("YYYY-MM-DD"),
+        topScore: string (eg "6")
+      }, ...],
+      attemptCount: string (eg "10"),
+      highestScores: [{
+        score: string (eg "6"),
+        attemptDate: string ("YYYY-MM-DD")
+      }, ...]
+  
+  
+  */
   const json = await response.json()
+
+  console.log(json)
+
+  return
 
   // store the answers in sessionStorage
   sessionStorage.setItem('results', JSON.stringify(json))

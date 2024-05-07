@@ -7,12 +7,28 @@ function renderTotalScore(totalScore, numQuestions) {
   const newLiItem = document.createElement('li')
   resultsList.appendChild(newLiItem)
 
+  let avgPercentage = (totalScore / numQuestions) * 100
+
+  let displayMessage = ''
+
+  if (avgPercentage < 50)
+    displayMessage = 'Great , You have failed , expect the same if u do not work hard !!! '
+  else if (avgPercentage >= 50 && avgPercentage <= 59)
+    displayMessage = 'You have barely  passed dude , be careful, You may fail anytime !!! '
+  else if (avgPercentage >= 60 && avgPercentage <= 69)
+    displayMessage = 'You have managed a credit score mate , pretty decent !!! '
+  else if (avgPercentage >= 70 && avgPercentage <= 79)
+    displayMessage = 'hmm , entering distinction area , are we ?? . good good  !!! '
+  else if (avgPercentage >= 80 && avgPercentage <= 100)
+    displayMessage = 'wow , wow . congrats on the high distinction !!! '
+
   let template = `
     <p>
       Your score was: 
       <span class="${totalScore / numQuestions < 0.5 ? 'red' : 'green'}">${totalScore * 10}</span>
      / ${numQuestions * 10}
      </p>
+     <p>${displayMessage}</P>
      <a href="../welcome/welcome.html"><button type="button">Return</button></a>
   `
 

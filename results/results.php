@@ -9,7 +9,7 @@
 
 
 require_once ("../settings.php");
-$conn = @mysqli_connect($host, $user, $pwd, $sql_db);
+$conn = mysqli_connect($host, $user, $pwd, $sql_db);
 
 if (!$conn) {
     $response = array("error" => "Error connecting to the database.");
@@ -22,7 +22,7 @@ $userId = $_GET["userId"];
 // get the data that was posted
 $jsonData = file_get_contents('php://input');
 
-// $playerAnswersData: [{answerType: "stucture" | "reaction" | ... , userAnswer: string, questionId: number }, ... ]
+// $playerAnswersData: [{answerType: "structure" | "reaction" | ... , userAnswer: string, questionId: number }, ... ]
 $playerAnswersData = json_decode($jsonData, true);
 
 
@@ -79,12 +79,65 @@ for ($i = 0; $i < count($playerAnswersData); $i++) {
 
 // store the score on the database
 
-$query2 = "INSERT INTO Scores(userId, score)
-    VALUES($userId, $playerScore)";
+$query2="INSERT INTO Scores(userId,score)
+        VALUES($userId,$playerScore);";
 
-$result2 = mysqli_query($conn, $query2);
+$result2=mysqli_query($conn,$query2);
 
-// get updated score data for the player (and all players?)
+
+
+// get updated score data leaderboard attempt times and highest score
+
+
+
+// $query3="SELECT userId, username, max(score) as topScore
+// FROM Users
+// WHERE Users.userId='$userId'
+// JOIN Scores ON Users.userId=Scores.userId
+// GROUP BY Scores.userId 
+// ORDER BY topScore";
+
+$query3="SELECT Users.userId, Users.username, Scores.attemptDate, max(Scores.score) AS topScore
+FROM Users
+JOIN Scores ON Users.userId=Scores.userId
+WHERE Users.userId=$userId
+GROUP BY Users.userId, Users.username
+ORDER BY topScore;";
+
+$query4="SELECT count(*)
+FROM Scores
+WHERE Scores.userId='$userId'";
+
+$query5="SELECT score, attemptDate
+FROM Scores 
+WHERE Scores.UserId='$userId'
+ORDER BY score DESC
+LIMIT 5;";
+
+$result3=mysqli_query($conn,$query3);
+
+$result4=mysqli_query($conn,$query4);
+
+$result5=mysqli_query($conn,$query5);
+
+$leaderBoard=array();
+$highestScores=array();
+
+while ($row = mysqli_fetch_assoc($result3)) {
+    $leaderBoard[]=$row;
+}
+
+$row = mysqli_fetch_assoc($result4);
+
+$attemptCount = $row["count(*)"];
+
+while($row=mysqli_fetch_assoc($result5)) {
+    $highestScores[]=$row;
+}
+
+mysqli_free_result($result3);
+mysqli_free_result($result4);
+mysqli_free_result($result5);
 
 // prepare an object that will be sent back to client
 $response = array(
@@ -92,14 +145,16 @@ $response = array(
     "message" => "",
     "score" => $playerScore,
     "userId" => $userId,
-    "results" => $playerResultsArray
+    "results" => $playerResultsArray,
+    "leaderBoard"=>$leaderBoard,
+    "attemptCount"=>$attemptCount,
+    "highestScores"=>$highestScores
+
 );
 
 header("Content-Type: application/json");
 echo json_encode($response);
 
-
 mysqli_close($conn);
-
 
 ?>
