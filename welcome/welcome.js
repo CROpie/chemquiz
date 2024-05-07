@@ -28,7 +28,7 @@ function renderScoreboard(topScores) {
 
     const rowTemplate = `
       <td>${topScores[i].username}</td>
-      <td>${topScores[i].score}</td>
+      <td>${topScores[i].topScore}</td>
       <td>${topScores[i].attemptDate}</td>
       `
 
@@ -53,21 +53,32 @@ function renderScores(userScores) {
   }
 }
 
+function handleLogOut() {
+  sessionStorage.clear()
+  window.location.href = '../index.html'
+}
+
 function init() {
-  const userScores = JSON.parse(sessionStorage.getItem('userScores'))
-  console.log(userScores)
+  const highestScores = JSON.parse(sessionStorage.getItem('highestScores'))
+  const leaderBoard = JSON.parse(sessionStorage.getItem('leaderBoard'))
+  const attemptCount = sessionStorage.getItem('attemptCount')
 
-  const topScores = [
-    { username: 'Chris', score: 10, attemptDate: '2024-04-30' },
-    { username: 'Arun', score: 9, attemptDate: '2024-03-12' },
-    { username: 'Layan', score: 8, attemptDate: '2024-05-02' },
-  ]
+  if (highestScores) {
+    renderScores(highestScores)
+  }
 
-  renderScores(userScores)
+  if (leaderBoard) {
+    renderScoreboard(leaderBoard)
+  }
 
-  renderScoreboard(topScores)
+  if (attemptCount) {
+    document.getElementById(
+      'total-attempts'
+    ).textContent = `Total number of attempts: ${attemptCount}`
+  }
 
   document.getElementById('startBtn').addEventListener('click', handleStartGame)
+  document.getElementById('logoutBtn').addEventListener('click', handleLogOut)
 }
 
 onload = init

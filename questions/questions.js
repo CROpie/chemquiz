@@ -161,18 +161,16 @@ async function handleFinishQuiz(answers) {
       highestScores: [{
         score: string (eg "6"),
         attemptDate: string ("YYYY-MM-DD")
-      }, ...]
-  
-  
+      }, ...]  
   */
   const json = await response.json()
 
-  console.log(json)
-
-  return
-
   // store the answers in sessionStorage
-  sessionStorage.setItem('results', JSON.stringify(json))
+  sessionStorage.setItem('results', JSON.stringify(json.results))
+  sessionStorage.setItem('leaderBoard', JSON.stringify(json.leaderBoard))
+  sessionStorage.setItem('attemptCount', json.attemptCount)
+  sessionStorage.setItem('highestScores', JSON.stringify(json.highestScores))
+  sessionStorage.setItem('score', json.score)
 
   // redirect to results page
   window.location.href = '../results/results.html'

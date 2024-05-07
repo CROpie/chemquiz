@@ -1,6 +1,14 @@
 <?php
 
 require_once ("../settings.php");
+require_once("../utils/sanitiseinput.php");
+
+// prepare an object that will be sent back to client
+$response = array(
+    "success" => false,
+    "message" => ""
+);
+
 $conn = @mysqli_connect($host, $user, $pwd, $sql_db);
 
 if (!$conn) {
@@ -9,48 +17,89 @@ if (!$conn) {
     exit;
 }
 
-// get the data that was posted
-// it has already been sanitised and validated by this stage
-$username = ($_POST["username"]);
+// get the userId from queryParams
+$userId = sanitise_input($_GET["userId"]);
 
-// get the password for that particular username from the database
-$query = "SELECT score, attemptDate
-FROM Scores
-JOIN Users ON Users.userId = Scores.userId
-WHERE Users.username = '$username'
-";
+// get leaderboard, number of attempts and highest scores
+$leaderBoard = queryForLeaderboard($conn, $userId);
+$attemptCount = queryForAttempts($conn, $userId);
+$highestScores = queryForScores($conn, $userId);
 
-$result = mysqli_query($conn, $query);
 
-// prepare an object that will be sent back to client
-$response = array(
-    "success" => false,
-    "message" => ""
-);
+// $query = "SELECT score, attemptDate
+// FROM Scores
+// JOIN Users ON Users.userId = Scores.userId
+// WHERE Users.username = '$username'
+// ";
 
-$data = array();
+$response["leaderBoard"] = $leaderBoard;
+$response["attemptCount"] = $attemptCount;
+$response["highestScores"] = $highestScores;
 
-while ($row = mysqli_fetch_assoc($result)) {
-    $data[] = $row;
-}
+$response["success"] = true;
 
-// determine the outcome
-if (empty($data)) {
-    // if the array has no values, ie no rows were returned
-    $response["success"] = true;
-    $response["message"] = "not an error but no rows returned";
-    $response["data"] = $data;
-} else if (!$result) {
-    $response["message"] = "error connecting to database";
-} else {
-    $response["success"] = true;
-    $response["data"] = $data;
-}
 
 header("Content-Type: application/json");
 echo json_encode($response);
 
-mysqli_free_result($result);
 mysqli_close($conn);
+
+function queryForLeaderboard($conn, $userId) {
+    $query = "  SELECT Users.userId, Users.username, Scores.attemptDate, max(Scores.score) AS topScore
+                FROM Users
+                JOIN Scores ON Users.userId=Scores.userId
+                WHERE Users.userId=$userId
+                GROUP BY Users.userId, Users.username
+                ORDER BY topScore
+                LIMIT 5;";
+
+    $result = mysqli_query($conn, $query);
+
+    $leaderBoard = array();
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $leaderBoard[] = $row;
+    }
+
+    mysqli_free_result($result);
+
+    return $leaderBoard;
+}
+
+function queryForAttempts($conn, $userId) {
+    $query = "  SELECT count(*)
+                FROM Scores
+                WHERE Scores.userId='$userId'";
+
+    $result = mysqli_query($conn, $query);
+
+    $row = mysqli_fetch_assoc($result);
+
+    $attemptCount = $row["count(*)"];
+
+    mysqli_free_result($result);
+
+    return $attemptCount;
+}
+
+function queryForScores($conn, $userId) {
+    $query = "  SELECT score, attemptDate
+                FROM Scores 
+                WHERE Scores.UserId='$userId'
+                ORDER BY attemptDate DESC
+                LIMIT 5;";
+    
+    $result = mysqli_query($conn, $query);
+
+    $highestScores=array();
+
+    while($row = mysqli_fetch_assoc($result)) {
+        $highestScores[] = $row;
+    }
+
+    mysqli_free_result($result);
+
+    return $highestScores;
+}
 
 ?>

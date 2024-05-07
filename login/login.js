@@ -97,7 +97,7 @@ async function handleSubmit(event) {
   // is student so go to student page
   // writing separately here, but ideally would be sent the student data from php already
 
-  const response2 = await fetch('./welcome/welcome.php', {
+  const response2 = await fetch(`./welcome/welcome.php?userId=${json.userId}`, {
     method: 'POST',
     body: formData,
   })
@@ -109,8 +109,14 @@ async function handleSubmit(event) {
 
   const json2 = await response2.json()
 
+  console.log(json2)
+
   sessionStorage.setItem('userInfo', JSON.stringify({ username, userId: json.userId }))
-  sessionStorage.setItem('userScores', JSON.stringify(json2.data))
+
+  sessionStorage.setItem('leaderBoard', JSON.stringify(json2.leaderBoard))
+  sessionStorage.setItem('attemptCount', json2.attemptCount)
+  sessionStorage.setItem('highestScores', JSON.stringify(json2.highestScores))
+
   window.location.href = './welcome/welcome.html'
 }
 

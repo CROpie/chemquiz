@@ -112,7 +112,7 @@ function renderStructureResult(question, playerAnswer, result, questionNo) {
   return template
 }
 
-function renderPlayerResponses(questions, playerAnswers, resultsObject) {
+function renderPlayerResponses(questions, playerAnswers, resultsArray, score) {
   const resultsList = document.getElementById('results-list')
 
   // i corresponds to the question number
@@ -123,17 +123,17 @@ function renderPlayerResponses(questions, playerAnswers, resultsObject) {
     let liContent = ''
 
     if (questions[i].structureId) {
-      liContent = renderStructureResult(questions[i], playerAnswers[i], resultsObject.results[i], i)
+      liContent = renderStructureResult(questions[i], playerAnswers[i], resultsArray[i], i)
     }
 
     if (questions[i].reactionId) {
-      liContent = renderReactionResult(questions[i], playerAnswers[i], resultsObject.results[i], i)
+      liContent = renderReactionResult(questions[i], playerAnswers[i], resultsArray[i], i)
     }
 
     newLiItem.innerHTML = liContent
   }
 
-  renderTotalScore(resultsObject.score, questions.length)
+  renderTotalScore(score, questions.length)
 }
 
 async function init() {
@@ -141,11 +141,12 @@ async function init() {
 
   const questions = JSON.parse(sessionStorage.getItem('questions'))
   const playerAnswers = JSON.parse(sessionStorage.getItem('playerAnswers'))
-  const resultsObject = JSON.parse(sessionStorage.getItem('results'))
+  const resultsArray = JSON.parse(sessionStorage.getItem('results'))
+  const score = sessionStorage.getItem('score')
 
-  console.log(questions, playerAnswers, resultsObject)
+  console.log(questions, playerAnswers, resultsArray)
 
-  renderPlayerResponses(questions, playerAnswers, resultsObject)
+  renderPlayerResponses(questions, playerAnswers, resultsArray, score)
 }
 
 onload = init
