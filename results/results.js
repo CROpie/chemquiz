@@ -1,4 +1,4 @@
-import { initRDKit, getRDKit } from '../utils/rdkit.js'
+import { initRDKit, getRDKit, safelyGenerateStructure } from '../utils/rdkit.js'
 import { QUESTION_MARK, ARROW_SVG, PLUS_SVG } from '../utils/svgs.js'
 import { convertToChemicalFormula } from '../utils/misc.js'
 import { checkAuth } from '../utils/auth.js'
@@ -39,12 +39,20 @@ function renderTotalScore(totalScore, numQuestions) {
 function renderReactionResult(question, playerAnswer, result, questionNo) {
   const RDKit = getRDKit()
 
-  const reactantSVG = RDKit.get_mol(question.reactant).get_svg()
-  const reagentSVG = question.reagent ? RDKit.get_mol(question.reagent).get_svg() : null
+  // const reactantSVG = RDKit.get_mol(question.reactant).get_svg()
+  // const reagentSVG = question.reagent ? RDKit.get_mol(question.reagent).get_svg() : null
 
-  const answerSVG = RDKit.get_mol(question.productSmile).get_svg()
+  // const answerSVG = RDKit.get_mol(question.productSmile).get_svg()
+  // const playerAnswerSVG = playerAnswer.userAnswerSmiles
+  //   ? RDKit.get_mol(playerAnswer.userAnswerSmiles).get_svg()
+  //   : null
+
+  const reactantSVG = safelyGenerateStructure(question.reactant)
+  const reagentSVG = question.reagent ? safelyGenerateStructure(question.reagent) : null
+
+  const answerSVG = safelyGenerateStructure(question.productSmile)
   const playerAnswerSVG = playerAnswer.userAnswerSmiles
-    ? RDKit.get_mol(playerAnswer.userAnswerSmiles).get_svg()
+    ? safelyGenerateStructure(playerAnswer.userAnswerSmiles)
     : null
 
   let template = `

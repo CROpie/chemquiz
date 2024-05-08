@@ -1,4 +1,4 @@
-import { getRDKit, initRDKit } from '../../../utils/rdkit.js'
+import { initRDKit, safelyGenerateStructure } from '../../../utils/rdkit.js'
 import { initializeJsme, getJsme, getJsmeApplet, hideJsme } from '../../../utils/jsme.js'
 import { checkAuth } from '../../../utils/auth.js'
 
@@ -204,7 +204,8 @@ function renderBigButton(session) {
 
 // probably could be combined with renderEditable, but at least if want to chance things later it is easy to do so
 function renderReadOnly(session, qData) {
-  const moleculeSVG = getRDKit().get_mol(qData.molecule).get_svg()
+  // returns a question mark if the structure is invalid
+  const moleculeSVG = safelyGenerateStructure(qData.molecule)
 
   const template = `
   <div class="svg-container">${moleculeSVG}</div>

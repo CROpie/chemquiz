@@ -1,5 +1,5 @@
 import { getJsmeApplet, getJsme, hideJsme, initializeJsme } from '../../../utils/jsme.js'
-import { getRDKit, initRDKit } from '../../../utils/rdkit.js'
+import { getRDKit, initRDKit, safelyGenerateStructure } from '../../../utils/rdkit.js'
 import { convertToChemicalFormula } from '../../../utils/misc.js'
 import { ARROW_SVG, PLUS_SVG } from '../../../utils/svgs.js'
 import { checkAuth } from '../../../utils/auth.js'
@@ -120,11 +120,10 @@ function renderEditable(session) {
 
   hideJsme()
   getJsmeApplet().reset()
-  let RDKit = getRDKit()
 
-  const productSVG = editData.productSmile ? RDKit.get_mol(editData.productSmile).get_svg() : null
-  const reactantSVG = editData.reactant ? RDKit.get_mol(editData.reactant).get_svg() : null
-  const reagentSVG = editData.reagent ? RDKit.get_mol(editData.reagent).get_svg() : null
+  const productSVG = editData.productSmile ? safelyGenerateStructure(editData.productSmile) : null
+  const reactantSVG = editData.reactant ? safelyGenerateStructure(editData.reactant) : null
+  const reagentSVG = editData.reagent ? safelyGenerateStructure(editData.reagent) : null
 
   const template = `
 
@@ -295,12 +294,9 @@ function renderEditCondition(session) {
 // print the elements to the page with a button which allows editing
 // if the element isn't present in the data, doesn't render a placeholder
 function renderReadOnly(session, rData) {
-  const RDKit = getRDKit()
-  const productSVG = rData.productSmile ? RDKit.get_mol(rData.productSmile).get_svg() : null
-  const reactantSVG = rData.reactant ? RDKit.get_mol(rData.reactant).get_svg() : null
-  const reagentSVG = rData.reagent ? RDKit.get_mol(rData.reagent).get_svg() : null
-
-  console.log(rData)
+  const productSVG = rData.productSmile ? safelyGenerateStructure(rData.productSmile) : null
+  const reactantSVG = rData.reactant ? safelyGenerateStructure(rData.reactant) : null
+  const reagentSVG = rData.reagent ? safelyGenerateStructure(rData.reagent) : null
 
   let template = `
       <div class="reaction-question">

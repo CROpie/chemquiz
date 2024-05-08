@@ -1,0 +1,32 @@
+INSERT INTO ReactionQ (
+    reactant, 
+    reagent, 
+    productSmile, 
+    productInchi, 
+    catalyst, 
+    solvent, 
+    temperature, 
+    time, 
+    difficulty
+) 
+VALUES
+('CC(=O)O', 'NCc1ccccc1', 'CC(=O)NCc1ccccc1', 'InChI=1S/C9H11NO/c1-8(11)10-7-9-5-3-2-4-6-9/h2-6H,7H2,1H3,(H,10,11)', 'PyBOP', 'THF', 25, 1, 1),
+('CC(C)=O', 'N#C[Na]', 'CC(C)(O)C#N', 'InChI=1S/C4H7NO/c1-4(2,6)3-5/h6H,1-2H3', 'H2SO4', 'H2O', NULL, NULL, 0),
+('O=C1CCCCC1', '', 'OC1CCCCC1', 'InChI=1S/C6H12O/c7-6-4-2-1-3-5-6/h6-7H,1-5H2', 'NaBH4', 'iPrOH', NULL, NULL, 0),
+('C/C(C)=C(C)C', 'BrBr', 'CC(C)(Br)C(C)(C)Br', 'InChI=1S/C6H12Br2/c1-5(2,7)6(3,4)8/h1-4H3', '', '', NULL, NULL, 0),
+('c1ccccc1', 'BrBr', 'Brc1ccccc1', 'InChI=1S/C6H5Br/c7-6-4-2-1-3-5-6/h1-5H', 'FeBr3', '', NULL, NULL, 0),
+('CCC(C)=O', 'Br[Mg]c1ccccc1', 'CCC(C)(O)c1ccccc1', 'InChI=1S/C10H14O/c1-3-10(2,11)9-7-5-4-6-8-9/h4-8,11H,3H2,1-2H3', '', 'THF', 0, 1, 0),
+('COCOc1cccc(C)c1', 'O=C=O', 'COCOc1cc(C)ccc1C(=O)O', 'InChI=1S/C10H12O4/c1-7-3-4-8(10(11)12)9(5-7)14-6-13-2/h3-5H,6H2,1-2H3,(H,11,12)', '', '', NULL, NULL, 1),
+('CC(=O)Cc1ccccc1', 'CN', 'CNC(C)Cc1ccccc1', 'InChI=1S/C10H15N/c1-9(11-2)8-10-6-4-3-5-7-10/h3-7,9,11H,8H2,1-2H3', 'Al/Hg', '', NULL, NULL, 1),
+('C=CC=C', 'COc1cc(=O)c(C)cc1=O', 'COC2=CC(=O)C1(C)CC=CCC1(C)C2=O', 'InChI=1S/C13H16O3/c1-12-6-4-5-7-13(12,2)11(15)9(16-3)8-10(12)14/h4-5,8H,6-7H2,1-3H3', '', 'toluene', 100, 96, 1),
+('CCCC#C[Si](C)(C)C(C)(C)C', '', 'C#CCCC', 'InChI=1S/C5H8/c1-3-5-4-2/h1H,4-5H2,2H3', 'TBAF', 'THF', 25, 1, 0),
+('COC(=O)C(Cc1ccccc1)NC(=O)OC(C)(C)C', '', 'COC(=O)C(N)Cc1ccccc1', 'InChI=1S/C10H13NO2/c1-13-10(12)9(11)7-8-5-3-2-4-6-8/h2-6,9H,7,11H2,1H3', 'CF3COOH', 'DCM', 25, 1, 0),
+('CC1(C)CC(=O)CC(=O)C1', 'O=S(=O)(OS(=O)(=O)C(F)(F)F)C(F)(F)F', 'CC1(C)CC(=O)C=C(OS(=O)(=O)C(F)(F)F)C1', 'InChI=1S/C9H11F3O4S/c1-8(2)4-6(13)3-7(5-8)16-17(14,15)9(10,11,12)/h3H,4-5H2,1-2H3', 'C5H5N', 'DCM', -78, NULL, 1),
+('O=c2c1ccccc1c3ccccc23', 'NN', 'NN=c2c1ccccc1c3ccccc23', 'InChI=1S/C13H10N2/c14-15-13-11-7-3-1-5-9(11)10-6-2-4-8-12(10)13/h1-8H,14H2', '', 'EtOH', -78, NULL, 0),
+('Nc1ccccc1Br', 'OB(O)c1ccccc1', 'Nc1ccccc1c2ccccc2', 'InChI=1S/C12H11N/c13-12-9-5-4-8-11(12)10-6-2-1-3-7-10/h1-9H,13H2', 'Pd(PPh3)4', 'toluene/EtOH/H2O', NULL, 16, 1),
+('N#CCc1ccccc1', '', 'CCOC(=O)Cc1ccccc1', 'InChI=1S/C10H12O2/c1-2-12-10(11)8-9-6-4-3-5-7-9/h3-7H,2,8H2,1H3', 'H2SO4', 'EtOH', 78, 6, 0),
+('Oc2ccc1ccccc1c2', 'O=NO[Na]', 'O=Nc1c(O)ccc2ccccc12', 'InChI=1S/C10H7NO2/c12-9-6-5-7-3-1-2-4-8(7)10(9)11-13/h1-6,12H', 'H2SO4', 'H2O/NaOH', 0, 2, 1),
+('Br/C=C/c1ccccc1', '', 'C#Cc1ccccc1', 'InChI=1S/C8H6/c1-2-8-6-4-3-5-7-8/h1,3-7H', 'KOH', '', 200, NULL, 1),
+('O=c1oc(=O)c2ccccc12', '', 'O=c1[nH]c(=O)c2ccccc12', 'InChI=1S/C8H5NO2/c10-7-5-3-1-2-4-6(5)8(11)9-7/h1-4H,(H,9,10,11)', 'NH4OH', 'H2O', 300, NULL, 0),
+('Cc1cc(C)c(N)c(C)c1', 'O=CC=O', 'Cc2cc(C)c(/N=C/C=N/c1c(C)cc(C)cc1C)c(C)c2', 'InChI=1S/C20H24N2/c1-13-9-15(3)19(16(4)10-13)21-7-8-22-20-17(5)11-14(2)12-18(20)6/h7-12H,1-6H3/b21-7+,22-8+', '', 'iPrOH, H2O', NULL, 24, 1),
+('C[Si](C)(C)c1ccccc1OS(=O)(=O)C(F)(F)F', 'CCOC(=O)C=N#N', 'CCOC(=O)c1n[nH]c2ccccc12', 'InChI=1S/C10H10N2O2/c1-2-14-10(13)9-7-5-3-4-6-8(7)11-12-9/h3-6H,2H2,1H3,(H,11,12)', 'TBAF', 'THF', 25, 1, 1);

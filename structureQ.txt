@@ -1,0 +1,30 @@
+INSERT INTO StructureQ (
+    molecule,
+    answer,
+    incorrect1,
+    incorrect2,
+    incorrect3,
+    difficulty
+)
+VALUES
+('c1ccccc1', 'benzene', 'toluene', 'methanol', 'ethanol', 0),
+('CCO', 'ethanol', 'methanol', 'propanol', 'tert-butanol', 0),
+('CN', 'methylamine', 'ethylamine', 'propylamine', 'butylamine', 0),
+('C1CCCC1', 'cyclopentane', 'cyclopentene', 'cyclohexane', 'cyclohexene', 0),
+('CN4CC[C@]23c1c5ccc(O)c1O[C@H]2[C@@H](O)C=C[C@H]3[C@H]4C5', 'morphine', 'aspirin', 'codeine', 'heroin', 1),
+('CC(=O)Oc1ccc2C[C@@H]5[C@@H]3C=C[C@H](OC(C)=O)[C@@H]4Oc1c2[C@]34CCN5C', 'heroin', 'morphine', 'oxycodone', 'cocaine', 1),
+('COC(=O)[C@H]2[C@@H](OC(=O)c1ccccc1)C[C@@H]3CC[C@H]2N3C', 'cocaine', 'dopamine', 'caffeine', 'ethanol', 1),
+('Cn1cnc2c1c(=O)n(C)c(=O)n2C', 'caffeine', 'ethanol', 'cocaine', 'heroin', 1),
+('ClCCl', 'dichloromethane', 'chloromethane', 'chloroform', 'carbon tetrachloride', 0),
+('C#C', 'ethyne', 'alkyne', 'alkene', 'alkane', 0),
+('C[C@@H](N)C(=O)O', 'alanine', 'glycine', 'phenylalanine', 'proline', 0),
+('c1ccncc1', 'pyridine', 'pyrimidine', 'pyrine', '2,6-lutidine', 0),
+('O=C(O)C(F)(F)F', 'trifluoroacetic acid', 'acetic acid', 'ethanoic acid', 'triflic acid', 0),
+('CC(C)(C)S', 'tert-butylthiol', 'tert-butanol', 'n-butanol', 'n-butylthiol', 0),
+('O=Cc1ccccc1', 'benzaldehyde', 'benzyl alcohol', 'benzoic acid', 'benzoin', 0),
+('CC(=O)Oc1ccccc1C(=O)O', 'aspirin', 'paracetamol', 'ibuprofen', 'methyl salicylate', 1),
+('Cc1c(N(=O)=O)cc(N(=O)=O)cc1N(=O)=O', 'trinitrotoluene', 'dinitrotoluene', 'nitroglycerine', 'acetone peroxide', 1),
+('COP(=O)(OC)C(=N#N)C(C)=O', 'Ohira-Bestmann reagent', 'Corey-Fuchs reagent', 'Shibasaki-Kumagai reagent', 'HWE reagent', 1),
+('COc1cc(CNC(=O)CCCC/C=C/C(C)C)ccc1O', 'capsaicin', 'mustard gas', 'nonivamide', 'allicin', 1),
+('NCCc1c[nH]c2ccc(O)cc12', 'serotonin', 'methamphetamine', 'tryptophan', 'safrole', 1),
+('CN1CCC[C@H]1c2cccnc2', 'nicotine', 'nylon', 'napthylene', 'normorphine', 1);

@@ -1,4 +1,9 @@
-import { initRDKit, getRDKit } from '../utils/rdkit.js'
+import {
+  initRDKit,
+  getRDKit,
+  safelyGenerateStructure,
+  safelyGenerateInchi,
+} from '../utils/rdkit.js'
 import { convertToChemicalFormula, shuffleArray } from '../utils/misc.js'
 import { hideJsme, initializeJsme, getJsme, getJsmeApplet } from '../utils/jsme.js'
 import { ARROW_SVG, PLUS_SVG } from '../utils/svgs.js'
@@ -23,12 +28,11 @@ function handleAnswerQuestion(type, currentGame, questionId, answer) {
     } else {
       // get the structure from jsme, then clear the input
       const smile = jsmeApplet.smiles()
-      const RDKit = getRDKit()
 
       // smile is for rendering the player answer on the results page
       // inchi is for checking player's answer with the one stored in the database
       answerObject.userAnswerSmiles = smile
-      answerObject.userAnswer = RDKit.get_mol(smile).get_inchi()
+      answerObject.userAnswer = safelyGenerateInchi(smile)
 
       jsmeApplet.reset()
     }
@@ -42,10 +46,13 @@ function handleAnswerQuestion(type, currentGame, questionId, answer) {
 }
 
 function renderReactionQuestion(currentGame, rData) {
-  const RDKit = getRDKit()
+  // const RDKit = getRDKit()
 
-  const reactantSVG = rData.reactant ? RDKit.get_mol(rData.reactant).get_svg() : null
-  const reagentSVG = rData.reagent ? RDKit.get_mol(rData.reagent).get_svg() : null
+  // const reactantSVG = rData.reactant ? RDKit.get_mol(rData.reactant).get_svg() : null
+  // const reagentSVG = rData.reagent ? RDKit.get_mol(rData.reagent).get_svg() : null
+
+  const reactantSVG = rData.reactant ? safelyGenerateStructure(rData.reactant) : null
+  const reagentSVG = rData.reagent ? safelyGenerateStructure(rData.reagent) : null
 
   let template = `
       <section id="reaction-question-container">
@@ -90,8 +97,11 @@ function renderReactionQuestion(currentGame, rData) {
 }
 
 function renderStructureQuestion(currentGame, question) {
-  let RDKit = getRDKit()
-  const questionSVG = RDKit.get_mol(question.molecule).get_svg()
+  // let RDKit = getRDKit()
+  // const questionSVG = RDKit.get_mol(question.molecule).get_svg()
+
+  const questionSVG = safelyGenerateStructure(question.molecule)
+
   let choices = [question.answer, question.incorrect1, question.incorrect2, question.incorrect3]
   choices = shuffleArray(choices)
   let template = `
