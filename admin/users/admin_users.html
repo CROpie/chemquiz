@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="./admin_users.js" defer></script>
+    <script src="./admin_users.js" type="module" defer></script>
     <link rel="stylesheet" href="admin_users.css" />
     <link rel="stylesheet" href="../nav.css" />
   </head>
@@ -13,10 +13,14 @@
       <a href="../admin.html">BACK</a>
       <a href="../users/admin_users.html">ADMIN USERS</a>
       <a href="../questions/admin_questions.html">ADMIN QUESTIONS</a>
-      <a href="..scores/admin_scores.html">ADMIN SCORES</a>
+      <a href="../scores/admin_scores.html">ADMIN SCORES</a>
     </nav>
 
     <h1>Admin Users Page</h1>
+
+    <section id="message-container">
+      <p id="response-message"></p>
+    </section>
 
     <!-- doesn't need to be in a form since we are submitting using JavaScript -->
     <h2>Add New User</h2>
@@ -48,8 +52,5 @@
     </table>
 
     <section id="replace-password-container"></section>
-    <section id="message-container">
-      <p id="response-message"></p>
-    </section>
   </body>
 </html>

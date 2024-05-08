@@ -157,3 +157,8 @@ button:hover svg > rect {
 #new-editBtn:hover {
   background-color: ghostwhite;
 }
+
+#response-message {
+  color: red;
+  text-align: center;
+}

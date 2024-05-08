@@ -275,12 +275,7 @@ button:not(:disabled) {
   background-position: center;
   background-size: contain;
   border: var(--bs-border-width) solid var(--bs-border-color);
-  -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
-  -webkit-print-color-adjust: exact;
-  color-adjust: exact;
-  print-color-adjust: exact;
 }
 
 /* not Bootstrap */
@@ -349,4 +344,10 @@ button:not(:disabled) {
 
 .form p {
   margin-top: 20px;
+}
+
+.invalid-feedback {
+  font-weight: 800;
+  color: white;
+  text-align: center;
 }

@@ -80,3 +80,12 @@ CREATE TABLE ReactionQ (
 UPDATE Users
     SET username = 'Chris', dateJoined = '2024-01-01'
     WHERE userId = '24';
+
+
+
+SELECT Users.userId, Users.username, Scores.attemptDate, max(Scores.score) AS topScore
+                FROM Users
+                JOIN Scores ON Users.userId=Scores.userId
+                GROUP BY Users.userId, Users.username
+                ORDER BY topScore
+                LIMIT 5;"

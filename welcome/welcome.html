@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="welcome.js" defer></script>
+    <script src="welcome.js" type="module" defer></script>
     <link rel="stylesheet" href="welcome.css" />
   </head>
   <body>
-    <h1>Welcome Page</h1>
+    <h1 id="welcome-message">Welcome Page</h1>
     <section id="score-tables">
       <div>
         <h3>Scores table</h3>
@@ -55,5 +55,8 @@
       <button id="startBtn">START GAME</button>
       <button id="logoutBtn">LOG OUT</button>
     </div>
+    <section id="message-container">
+      <p id="response-message"></p>
+    </section>
   </body>
 </html>

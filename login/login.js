@@ -22,9 +22,14 @@ function checkValidity() {
     errObj.password = 'Please enter a password.'
   }
 
-  if (username && !username.match(/^[a-zA-Z]+$/)) {
+  if (username && !username.match(/^[a-zA-Z0-9]+$/)) {
     result = false
-    errObj.username = 'A username may only include letters.'
+    errObj.username = 'A username may only include letters and numbers.'
+  }
+
+  if (password && !password.match(/^.{8,}$/)) {
+    result = false
+    errObj.password = 'A password must have at least 8 characters.'
   }
 
   // proceed if no errors
@@ -51,8 +56,10 @@ function show() {
 }
 
 function init() {
+  sessionStorage.clear()
   document.getElementById('loginForm').addEventListener('submit', handleSubmit)
   document.getElementById('flexCheckIndeterminate').addEventListener('change', show)
+  document.getElementById('flexCheckIndeterminate').checked = false
 }
 
 async function handleSubmit(event) {
@@ -77,9 +84,8 @@ async function handleSubmit(event) {
     return
   }
 
+  // json = { success: boolean, message: string, userData: {userId: "number", username: string, isAdmin: "0" | "1"} }
   const json = await response.json()
-
-  console.log(json)
 
   // handle failure to log in
   if (!json.success) {
@@ -87,8 +93,10 @@ async function handleSubmit(event) {
     return
   }
 
+  sessionStorage.setItem('userInfo', JSON.stringify(json.userData))
+
   // if admin, go to admin page
-  if (json.isAdmin === '1') {
+  if (json.userData.isAdmin === '1') {
     window.location.href = './admin/admin.html'
     // return isn't necessary but perhaps good to have just in case
     return
@@ -97,21 +105,35 @@ async function handleSubmit(event) {
   // is student so go to student page
   // writing separately here, but ideally would be sent the student data from php already
 
-  const response2 = await fetch(`./welcome/welcome.php?userId=${json.userId}`, {
-    method: 'POST',
-    body: formData,
-  })
+  const response2 = await fetch(`./welcome/welcome.php?userId=${json.userData.userId}`)
 
   if (!response2.ok) {
     console.log('something went wrong')
     return
   }
 
+  /* json2 =
+    { success: boolean, 
+      message: string, 
+      leaderBoard: [{
+        userId: "number",
+        username: string,
+        attemptDate: string,
+        topScore: "number"
+      }, ...],
+      attemptCount: "number",
+      highestScores: [{
+        score: "number",
+        attemptDate: string)
+      }, ...]  
+  */
   const json2 = await response2.json()
 
-  console.log(json2)
-
-  sessionStorage.setItem('userInfo', JSON.stringify({ username, userId: json.userId }))
+  // handle failure to get data from database
+  if (!json2.success) {
+    document.getElementById('invalid-submit').textContent = json2.message
+    return
+  }
 
   sessionStorage.setItem('leaderBoard', JSON.stringify(json2.leaderBoard))
   sessionStorage.setItem('attemptCount', json2.attemptCount)

@@ -1,5 +1,24 @@
 import { getRDKit, initRDKit } from '../../../utils/rdkit.js'
 import { initializeJsme, getJsme, getJsmeApplet, hideJsme } from '../../../utils/jsme.js'
+import { checkAuth } from '../../../utils/auth.js'
+
+/* VALIDATION */
+function validateQuestion(errObj, editData) {
+  // check if any of the 4 options are identical, by adding to a set
+  // if the size of the set < 4, then there was a duplicate or they weren't filled out
+  const answerAndQuestions = new Set()
+  answerAndQuestions.add(editData.answer)
+  answerAndQuestions.add(editData.incorrect1)
+  answerAndQuestions.add(editData.incorrect2)
+  answerAndQuestions.add(editData.incorrect3)
+
+  if (answerAndQuestions.size < 4) {
+    errObj.success = false
+    errObj.message += 'You must fill out all input fields, and they must all be unique.\n'
+  }
+
+  return errObj
+}
 
 /* FETCH FUNCTIONS */
 async function getData() {
@@ -22,10 +41,21 @@ async function getData() {
   return json.data
 }
 
+// both new reactions and edited reactions submit through this function
 async function handleSubmit(session) {
   const msgArea = document.getElementById('response-message')
 
   const { editData } = session.getState()
+
+  // prevent submission if question isn't valid
+  let errObj = { success: true, message: '' }
+
+  errObj = validateQuestion(errObj, editData)
+
+  if (!errObj.success) {
+    msgArea.textContent = errObj.message
+    return
+  }
 
   const response = await fetch('./structure_questions.php', {
     method: 'PUT',
@@ -235,7 +265,7 @@ function initCurrentSession() {
 
   const structureQList = document.getElementById('existing-structureQ-list')
 
-  // get data from input fields, validate it, send to submit function
+  // get data from input fields, send to submit function
   function collectAndSubmit() {
     // make a copy of reaction data object so no mutation
     let modifiedData = { ...editData }
@@ -243,7 +273,10 @@ function initCurrentSession() {
     const jsmeApplet = getJsmeApplet()
 
     // don't allow submit if no structure
-    if (!jsmeApplet.smiles()) return
+    if (!jsmeApplet.smiles()) {
+      document.getElementById('response-message').textContent = 'Please draw a structure.'
+      return
+    }
 
     // structureId will be undefined when submitting a new question
     // but will have an id for modifying an existing question
@@ -257,27 +290,6 @@ function initCurrentSession() {
     modifiedData.difficulty = document.getElementById(`${editRow}-difficulty-checkbox`).checked
       ? '1'
       : '0'
-
-    // don't allow submit if not all input fields have data
-    if (
-      !modifiedData.answer ||
-      !modifiedData.incorrect1 ||
-      !modifiedData.incorrect2 ||
-      !modifiedData.incorrect3
-    ) {
-      alert('need to fill in all fields')
-      return
-    }
-
-    // don't allow submit if an incorrect answer is the same as the real answer
-    if (
-      modifiedData.answer === modifiedData.incorrect1 ||
-      modifiedData.answer === modifiedData.incorrect2 ||
-      modifiedData.answer === modifiedData.incorrect3
-    ) {
-      alert("can't have an incorrect response being the same as the correct one")
-      return
-    }
 
     editData = modifiedData
 
@@ -367,6 +379,9 @@ function initCurrentSession() {
 }
 
 async function init() {
+  // prevent unauthorized users from entering admin area
+  checkAuth(true)
+
   await initRDKit()
 
   initializeJsme()

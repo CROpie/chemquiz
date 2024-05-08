@@ -1,6 +1,7 @@
 import { initRDKit, getRDKit } from '../utils/rdkit.js'
 import { QUESTION_MARK, ARROW_SVG, PLUS_SVG } from '../utils/svgs.js'
 import { convertToChemicalFormula } from '../utils/misc.js'
+import { checkAuth } from '../utils/auth.js'
 
 function renderTotalScore(totalScore, numQuestions) {
   const resultsList = document.getElementById('results-list')
@@ -137,6 +138,9 @@ function renderPlayerResponses(questions, playerAnswers, resultsArray, score) {
 }
 
 async function init() {
+  // prevent unauthorized users from entering admin area
+  checkAuth()
+
   await initRDKit()
 
   const questions = JSON.parse(sessionStorage.getItem('questions'))

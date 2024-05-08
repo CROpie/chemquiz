@@ -2,6 +2,7 @@ import { initRDKit, getRDKit } from '../utils/rdkit.js'
 import { convertToChemicalFormula, shuffleArray } from '../utils/misc.js'
 import { hideJsme, initializeJsme, getJsme, getJsmeApplet } from '../utils/jsme.js'
 import { ARROW_SVG, PLUS_SVG } from '../utils/svgs.js'
+import { checkAuth } from '../utils/auth.js'
 
 function handleAnswerQuestion(type, currentGame, questionId, answer) {
   let answerObject = {
@@ -132,6 +133,7 @@ async function handleFinishQuiz(answers) {
 
   MAIN.innerHTML = template
 
+  // answers: [{questionType: ("structure" | "reaction"), questionId: number, userAnswer: string, userAnswerSmiles: string? }]
   const response = await fetch(`../results/results.php?userId=${userId}`, {
     method: 'POST',
     body: JSON.stringify(answers),
@@ -145,25 +147,30 @@ async function handleFinishQuiz(answers) {
     return
   }
 
-  /* json: 
+  /* json = 
     { success: boolean, 
       message: string, 
       score: number, 
-      userId: string (eg "30"), 
       results: boolean[], 
       leaderBoard: [{
-        userId: string (eg "30"),
+        userId: "number",
         username: string,
-        attemptDate: string ("YYYY-MM-DD"),
-        topScore: string (eg "6")
+        attemptDate: string,
+        topScore: "number"
       }, ...],
-      attemptCount: string (eg "10"),
+      attemptCount: "string",
       highestScores: [{
-        score: string (eg "6"),
-        attemptDate: string ("YYYY-MM-DD")
+        score: "number",
+        attemptDate: string
       }, ...]  
   */
   const json = await response.json()
+
+  // unexpected database failure..
+  if (!json.success) {
+    console.log('something went wrong...')
+    return
+  }
 
   // store the answers in sessionStorage
   sessionStorage.setItem('results', JSON.stringify(json.results))
@@ -233,6 +240,9 @@ function prepareQuestions() {
 }
 
 async function init() {
+  // prevent unauthorized users from entering admin area
+  checkAuth()
+
   await initRDKit()
   initializeJsme()
   prepareQuestions()

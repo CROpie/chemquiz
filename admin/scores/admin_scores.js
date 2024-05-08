@@ -1,3 +1,19 @@
+import { checkAuth } from '../../utils/auth.js'
+
+function validateScore(errObj, score) {
+  if (score && !score.match(/^[0-9]+$/)) {
+    errObj.success = false
+    errObj.message += 'Only numbers are accepted as scores.\n'
+  }
+
+  if (parseInt(score) < 0 || parseInt(score) > 10) {
+    errObj.success = false
+    errObj.message += 'Scores must be between 0 and 10.\n'
+  }
+
+  return errObj
+}
+
 async function getData() {
   const msgArea = document.getElementById('response-message')
 
@@ -91,6 +107,16 @@ async function handleSaveEditScore(scoresData, i) {
     editedScoreData[key] = document.getElementById(`input-${key}-${i}`).value
   }
 
+  // prevent submission if score isn't valid
+  let errObj = { success: true, message: '' }
+
+  errObj = validateScore(errObj, editedScoreData.score)
+
+  if (!errObj.success) {
+    msgArea.textContent = errObj.message
+    return
+  }
+
   const response = await fetch('./admin_scores.php', {
     method: 'PATCH',
     body: JSON.stringify(editedScoreData),
@@ -152,6 +178,9 @@ function handleEditScore(scoresData, i) {
 }
 
 async function init() {
+  // prevent unauthorized users from entering admin area
+  checkAuth(true)
+
   const scoresData = await getData()
 
   // ie if something went wrong with the database

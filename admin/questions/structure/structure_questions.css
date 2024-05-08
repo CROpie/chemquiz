@@ -139,6 +139,6 @@ button:hover {
 }
 
 #response-message {
-  color: white;
+  color: red;
   text-align: center;
 }

@@ -1,16 +1,7 @@
 Chris
 
-!conn needs to be in try/catch instead
-
-don't allow deleting admin // P@ssw0rd
-
-use 
-
-// prepare an object that will be sent back to client
-$response = array(
-    "success" => false,
-    "message" => ""
-);
+account for entering url manually: if (!userData) in session storage, then redirect to login page
+turn "number" into number?
 
 
 FUTURE STUFF
@@ -20,8 +11,6 @@ write questions:
         10 x questionType = 40
 
 show example admin login details and student login details on login page
-
-lobby: use Arun's SQL queries
 
 Investigate making a graph?
 

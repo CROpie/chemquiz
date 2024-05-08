@@ -1,124 +1,151 @@
 <?php
 
-// Check if able to fetch PHP response
-// header("Content-Type: application/json");
-
-// $response = array("success" => "Successfully accessed PHP.");
-
-// echo json_encode($response);
-
-
 require_once ("../settings.php");
-$conn = mysqli_connect($host, $user, $pwd, $sql_db);
+require_once("../utils/sanitiseinput.php");
 
-if (!$conn) {
-    $response = array("error" => "Error connecting to the database.");
+// prepare an object that will be sent back to client
+$response = array(
+    "success" => false,
+    "message" => ""
+);
+
+// attempt to create a connection to the database
+try {
+    $conn = mysqli_connect($host, $user, $pwd, $sql_db);
+} catch (mysqli_sql_exception $e) {
+    $response["message"] = $e->getMessage();
     echo json_encode($response);
     exit;
 }
 
-$userId = $_GET["userId"];
+// called from welcome.js -> handleStartGame
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-// get the data that was posted
-$jsonData = file_get_contents('php://input');
+    $response = handlePost($conn, $response);
 
-// $playerAnswersData: [{answerType: "structure" | "reaction" | ... , userAnswer: string, questionId: number }, ... ]
-$playerAnswersData = json_decode($jsonData, true);
+    header("Content-Type: application/json");
+    echo json_encode($response);
+    mysqli_close($conn);
+}
 
+function handlePost($conn, $response) {
 
-// was thinking that the questions would have to be retrieved here, in order to render them on the next page
-// however the questions are actually already stored in sessionStorage...
+    $userId = sanitise_input($_GET["userId"]);
 
-// questions = sessionStorage.getItem('questions')
-// playerAnswers = sessionStorage.getItem('playerAnswers')
-// results = [true, false, true, true, false] (send from here)
+    // get the data that was posted
+    $jsonData = file_get_contents('php://input');
 
-$playerScore = 0;
-$playerResultsArray = array();
+    // $playerAnswersData: [{answerType: "structure" | "reaction" | ... , userAnswer: string, questionId: number }, ... ]
+    $playerAnswersData = json_decode($jsonData, true);
 
-for ($i = 0; $i < count($playerAnswersData); $i++) {
+    // determine the player's score, and generate an array which shows which questions they got correct ([true, false, true, ...])
+    $playerScore = 0;
+    $playerResultsArray = array();
+    $queryError = false;
 
-    $type = $playerAnswersData[$i]["answerType"];
-    $playerAnswer = $playerAnswersData[$i]["userAnswer"];
-    $questionId = $playerAnswersData[$i]["questionId"];
+    for ($i = 0; $i < count($playerAnswersData); $i++) {
 
-    $query = '';
+        // get the question from the database
+        $type = $playerAnswersData[$i]["answerType"];
+        $playerAnswer = $playerAnswersData[$i]["userAnswer"];
+        $questionId = $playerAnswersData[$i]["questionId"];
 
-    if ($type === "structure") {
-        $query = "SELECT answer
-        FROM StructureQ
-        WHERE structureId = $questionId
-    ";
-    } else if ($type === "reaction") {
-        $query = "SELECT productInchi
-        FROM ReactionQ
-        WHERE reactionId = $questionId
+        $query = '';
+
+        if ($type === "structure") {
+            $query = "SELECT answer
+            FROM StructureQ
+            WHERE structureId = $questionId
         ";
+        } else if ($type === "reaction") {
+            $query = "SELECT productInchi
+            FROM ReactionQ
+            WHERE reactionId = $questionId
+            ";
+        }
+
+        $result = mysqli_query($conn, $query);
+
+        if (!$result) {
+            $queryError = true;
+            break;
+        }
+
+        $row = mysqli_fetch_assoc($result);
+
+        // determine if the user correctly answered the question
+        $actualAnswer = '';
+
+        if ($type === "structure") {
+            $actualAnswer = $row["answer"];
+        } else if ($type === "reaction") {
+            $actualAnswer = $row["productInchi"];
+        }
+        
+        if ($playerAnswer === $actualAnswer) {
+            $playerScore += 1;
+            $playerResultsArray[] = true;
+        } else {
+            $playerResultsArray[] = false;
+        }
+        mysqli_free_result($result);
     }
+
+    // if any of the queries to the database failed, return early & prevent storage of faulty data
+    if ($queryError) {
+        $response["message"] = "Something went wrong when interacting with the database.";
+        return $response;
+    }
+
+    // store the score on the database
+    $storeScoreResult = queryStoreScore($conn, $userId, $playerScore);
+
+    // get updated score data of the leaderboard, number of attempts and highest scores
+    $leaderBoard = queryForLeaderboard($conn);
+    $attemptCount = queryForAttempts($conn, $userId);
+    $highestScores = queryForScores($conn, $userId);
+
+    if ($scoreScoreResult === false ||
+        $leaderBoard === false ||
+        $attemptCount === false ||
+        $highestScores === false) {
+            $response["message"] = "Something went wrong when interacting with the database.";
+            return $response;
+        }
+
+    // add the data to the response object
+    $response["success"] = true;
+    $response["score"] = $playerScore;
+    $response["results"] = $playerResultsArray;
+    $response["leaderBoard"] = $leaderBoard;
+    $response["attemptCount"] = $attemptCount;
+    $response["highestScores"] = $highestScores;
+
+    return $response;
+}
+
+function queryStoreScore($conn, $userId, $playerScore) {
+    $query = "  INSERT INTO Scores(userId,score)
+                VALUES($userId, $playerScore);";
 
     $result = mysqli_query($conn, $query);
 
-    $row = mysqli_fetch_assoc($result);
+    if (!$result) return false;
 
-    $actualAnswer = '';
-
-    if ($type === "structure") {
-        $actualAnswer = $row["answer"];
-    } else if ($type === "reaction") {
-        $actualAnswer = $row["productInchi"];
-    }
-    
-    if ($playerAnswer === $actualAnswer) {
-        $playerScore += 1;
-        $playerResultsArray[] = true;
-    } else {
-        $playerResultsArray[] = false;
-    }
-    mysqli_free_result($result);
+    return true;
 }
 
-// store the score on the database
-
-$query2="INSERT INTO Scores(userId,score)
-        VALUES($userId,$playerScore);";
-
-$result2=mysqli_query($conn,$query2);
-
-
-
-// get updated score data leaderboard, attempt times and highest scores
-
-$leaderBoard = queryForLeaderboard($conn, $userId);
-$attemptCount = queryForAttempts($conn, $userId);
-$highestScores = queryForScores($conn, $userId);
-
-// prepare an object that will be sent back to client
-$response = array(
-    "success" => true,
-    "message" => "",
-    "score" => $playerScore,
-    "userId" => $userId,
-    "results" => $playerResultsArray,
-    "leaderBoard"=>$leaderBoard,
-    "attemptCount"=>$attemptCount,
-    "highestScores"=>$highestScores
-);
-
-header("Content-Type: application/json");
-echo json_encode($response);
-
-mysqli_close($conn);
-
-function queryForLeaderboard($conn, $userId) {
+function queryForLeaderboard($conn) {
     $query = "  SELECT Users.userId, Users.username, Scores.attemptDate, max(Scores.score) AS topScore
                 FROM Users
                 JOIN Scores ON Users.userId=Scores.userId
-                WHERE Users.userId=$userId
                 GROUP BY Users.userId, Users.username
-                ORDER BY topScore
+                ORDER BY topScore DESC
                 LIMIT 5;";
 
     $result = mysqli_query($conn, $query);
+
+    if (!$result) return false;
 
     $leaderBoard=array();
 
@@ -138,6 +165,8 @@ function queryForAttempts($conn, $userId) {
 
     $result = mysqli_query($conn, $query);
 
+    if (!$result) return false;
+
     $row = mysqli_fetch_assoc($result);
 
     $attemptCount = $row["count(*)"];
@@ -155,6 +184,8 @@ function queryForScores($conn, $userId) {
                 LIMIT 5;";
     
     $result = mysqli_query($conn, $query);
+
+    if (!$result) return false;
 
     $highestScores=array();
 

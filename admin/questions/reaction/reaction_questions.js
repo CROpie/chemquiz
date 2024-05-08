@@ -2,6 +2,18 @@ import { getJsmeApplet, getJsme, hideJsme, initializeJsme } from '../../../utils
 import { getRDKit, initRDKit } from '../../../utils/rdkit.js'
 import { convertToChemicalFormula } from '../../../utils/misc.js'
 import { ARROW_SVG, PLUS_SVG } from '../../../utils/svgs.js'
+import { checkAuth } from '../../../utils/auth.js'
+
+/* VALIDATION */
+function validateQuestion(errObj, editData) {
+  // the only data a valid reaction requires is a reactant and product
+  if (!editData.reactant || !editData.productSmile) {
+    errObj.success = false
+    errObj.message += 'You must draw at least a reactant and a product.\n'
+  }
+
+  return errObj
+}
 
 /* FETCH FUNCTIONS */
 // fetch list of existing reactions
@@ -50,6 +62,7 @@ async function handleDeleteItem(session, reactionId) {
   // msgArea.textContent = json.message
 }
 
+// both new reactions and edited reactions submit through this function
 async function handleSubmit(session) {
   const msgArea = document.getElementById('response-message')
 
@@ -60,9 +73,13 @@ async function handleSubmit(session) {
     editData.reagent = ''
   }
 
-  // a valid reaction needs only reactant and product
-  if (!editData.reactant || !editData.productSmile) {
-    alert('Please enter both a reactant and product')
+  // prevent submission if score isn't valid
+  let errObj = { success: true, message: '' }
+
+  errObj = validateQuestion(errObj, editData)
+
+  if (!errObj.success) {
+    msgArea.textContent = errObj.message
     return
   }
 
@@ -530,6 +547,9 @@ function initCurrentSession() {
 }
 
 async function init() {
+  // prevent unauthorized users from entering admin area
+  checkAuth(true)
+
   await initRDKit()
 
   initializeJsme()
