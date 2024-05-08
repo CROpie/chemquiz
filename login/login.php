@@ -30,8 +30,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 function handleLogin($conn, $response) {
 
     // get the data that was posted, and send it to a function to sanitise it
-    $username = sanitise_input($_POST["username"]);
+    $fullUsername = sanitise_input($_POST["username"]);
     $password = sanitise_input($_POST["password"]);
+
+    // eg admin@instatute.edu.au -> admin // instatute.edu.au
+    $splitUsername = explode("@", $fullUsername);
+
+    $username = $splitUsername[0];
+    $domain = $splitUsername[1];
 
     // get the data for the username entered from the database
     $query = "SELECT *
@@ -51,6 +57,16 @@ function handleLogin($conn, $response) {
 
     if (!$row) {
         $response["message"] = "User not found.";
+        return $response;
+    }
+
+    if ($row["isAdmin"] === "1" && $domain !== "instatute.edu.au") {
+        $response["message"] = "Incorrect domain entered for admin.";
+        return $response;
+    }
+
+    if ($row["isAdmin"] === "0" && $domain !== "student.instatute.edu.au") {
+        $response["message"] = "Incorrect domain entered for student.";
         return $response;
     }
 

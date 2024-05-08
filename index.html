@@ -16,13 +16,13 @@
 
         <div class="form-floating mb-4">
           <input
-            type="text"
+            type="email"
             id="username"
             class="form-control"
             placeholder="forstyling"
             name="username"
             required
-            value="chris"
+            value="chris@student.instatute.edu.au"
           />
           <label for="floatingInput">Username</label>
           <div id="invalid-username" class="invalid-feedback"></div>
@@ -48,9 +48,27 @@
 
           <label class="form-check-label" for="flexCheckIndeterminate">Show Password</label>
         </div>
+        <div id="invalid-submit" class="invalid-feedback"></div>
+
+        <h4>DEMO LOGIN DETAILS:</h4>
+        <ul>
+          <li>
+            Admin
+            <ul class="demo-login">
+              <li>username: admin@instatute.edu.au</li>
+              <li>password: password</li>
+            </ul>
+          </li>
+          <li>
+            Student
+            <ul class="demo-login">
+              <li>username: student@student.instatute.edu.au</li>
+              <li>password: password</li>
+            </ul>
+          </li>
+        </ul>
 
         <div class="signup_button"><button id="submitBtn">Log In</button></div>
-        <div id="invalid-submit" class="invalid-feedback"></div>
       </form>
     </div>
   </body>

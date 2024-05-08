@@ -351,3 +351,12 @@ button:not(:disabled) {
   color: white;
   text-align: center;
 }
+
+h4 {
+  text-align: center;
+  margin: 0;
+}
+
+.demo-login {
+  font-size: 0.85rem;
+}

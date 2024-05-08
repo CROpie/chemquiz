@@ -14,3 +14,7 @@ td {
   display: flex;
   gap: 20px;
 }
+
+h1 {
+  text-transform: capitalize;
+}

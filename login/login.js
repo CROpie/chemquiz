@@ -22,9 +22,9 @@ function checkValidity() {
     errObj.password = 'Please enter a password.'
   }
 
-  if (username && !username.match(/^[a-zA-Z0-9]+$/)) {
+  if (username && !username.match(/^[a-zA-Z0-9]+@(student\.)?instatute\.edu\.au$/)) {
     result = false
-    errObj.username = 'A username may only include letters and numbers.'
+    errObj.username = 'Invalid username.'
   }
 
   if (password && !password.match(/^.{8,}$/)) {

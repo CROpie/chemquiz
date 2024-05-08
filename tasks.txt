@@ -1,6 +1,5 @@
 Chris
 
-account for entering url manually: if (!userData) in session storage, then redirect to login page
 turn "number" into number?
 
 
