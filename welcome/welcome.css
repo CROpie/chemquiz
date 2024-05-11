@@ -10,11 +10,132 @@ td {
   padding: 4px;
 }
 
-#score-tables {
+h1 {
+  text-transform: capitalize;
+}
+
+/* extra */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #7bcbd9;
+  padding: 1em;
+  text-align: center;
+}
+
+header h3 {
+  margin: 0;
+}
+
+nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
+  justify-content: space-between;
+}
+
+nav li {
+  margin-right: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #337ab7;
+}
+
+nav a:hover {
+  color: #23527c;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2em;
+}
+
+section {
+  background-color: #75a8bc;
+  padding: 1em;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+main {
+  background-color: #a6c7d4;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+.scores-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.scores-table th,
+.scores-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.scores-table th {
+  background-color: #f0f0f0;
+}
+
+#total-attempts-num {
+  font-weight: bold;
+}
+
+button {
+  background-color: #337ab7;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #23527c;
+}
+
+h3 {
+  text-align: center;
+  margin: 0;
+  padding-bottom: 8px;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
   gap: 20px;
 }
 
-h1 {
-  text-transform: capitalize;
+@media screen and (max-width: 600px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
+
+#start-section > * {
+  flex: 1;
+}
+
+#start-section {
+  display: flex;
+  align-items: center;
+}
+
+#start-section div {
+  display: flex;
 }

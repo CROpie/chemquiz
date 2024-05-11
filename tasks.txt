@@ -2,37 +2,10 @@ Chris
 
 turn "number" into number?
 
-
-FUTURE STUFF
-
-write questions:
-    2 difficulty
-        10 x questionType = 40
-
-show example admin login details and student login details on login page
-
 Investigate making a graph?
 
 Arun
 
 Debugger for fun
 
-results message
-
-results.php
-    userScores && leaderboard
-results.hs (sessionStorage)
-Queries for welcome page (& for results page)
-
 css
-
-
------------
-LOGIN
-student username = name@student.instatute.edu.au?
-admin username = name@instatute.edu.au?
-
-Validate for username in this format?
-
-Add new user: check for existing name, add @... depending on isAdmin or not? ie just type in the name itself
-

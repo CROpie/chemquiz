@@ -32,7 +32,7 @@ function renderScoreboard(topScores) {
 
     const rowTemplate = `
       <td>${topScores[i].username}</td>
-      <td>${topScores[i].topScore}</td>
+      <td>${topScores[i].topScore * 10}</td>
       <td>${topScores[i].attemptDate}</td>
       `
 
@@ -49,7 +49,7 @@ function renderScores(userScores) {
 
     const rowTemplate = `
       <td>${userScores[i].attemptDate}</td>
-      <td>${userScores[i].score}</td>
+      <td>${userScores[i].score * 10}</td>
     `
 
     trow.innerHTML = rowTemplate
@@ -82,7 +82,7 @@ function init() {
 
   document.getElementById(
     'total-attempts'
-  ).textContent = `Total number of attempts: ${attemptCount}`
+  ).innerHTML = `Total number of attempts: <span id="total-attempts-num">${attemptCount}</span>`
 
   document.getElementById('startBtn').addEventListener('click', handleStartGame)
   document.getElementById('logoutBtn').addEventListener('click', handleLogOut)

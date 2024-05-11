@@ -126,8 +126,6 @@ function handlePostData($conn, $sql_table, $response) {
         return $response; 
     }
 
-    // hash the password
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
     // if checkDuplicate returns data that means that a record was found for that username
     // so prevent adding another entry
@@ -135,7 +133,10 @@ function handlePostData($conn, $sql_table, $response) {
         $response["message"] = "Error: couldn't complete the request. That username already exists.";
         return $response; 
     }
-    
+
+    // hash the password
+    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
     // write the sql query
     $query = "INSERT INTO Users (username, password, isAdmin)
     VALUES

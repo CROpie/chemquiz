@@ -351,7 +351,7 @@ async function init() {
   // display existing users
   const usersData = await getData()
 
-  // ie if something went wrong with the database
+  // ie if something went wrong with the database (but not [])
   if (!usersData) return
 
   // print a message if there are no records

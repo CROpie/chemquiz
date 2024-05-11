@@ -35,16 +35,18 @@ function handlePost($conn, $response) {
     $isDifficult = sanitise_input($_GET["isDifficult"]);
     $difficulty = $isDifficult === "true" ? "1" : "0";
 
-    $noReactionQs = 2;
-    $noStructureQs = 2;
+    // $noReactionQs = 2;
+    // $noStructureQs = 2;
+    $noReactionQs = 0;
+    $noStructureQs = 0;
 
     // get a random number of the different question types
-    // for ($i = 0; $i < 3; $i++) {
-    //     $rand = rand(0,1);
-    //     if ($rand == 0) $noReactionQs++;
+    for ($i = 0; $i < 10; $i++) {
+        $rand = rand(0,1);
+        if ($rand == 0) $noReactionQs++;
 
-    //     if ($rand == 1) $noStructureQs++;
-    // }
+        if ($rand == 1) $noStructureQs++;
+    }
 
     // add structure Qs to data array
     $structureQs = queryForStructureQuestions($conn, $data, $difficulty, $noStructureQs);

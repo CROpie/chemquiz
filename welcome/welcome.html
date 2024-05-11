@@ -8,55 +8,65 @@
     <link rel="stylesheet" href="welcome.css" />
   </head>
   <body>
-    <h1 id="welcome-message">Welcome Page</h1>
-    <section id="score-tables">
-      <div>
-        <h3>Scores table</h3>
+    <header>
+      <h1 id="welcome-message">Welcome Page</h1>
+      <nav>
+        <ul>
+          <li><button id="logoutBtn">LOG OUT</button></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <h3>Personal Scores</h3>
         <p>Your 5 most recent results</p>
-        <table>
+        <table class="scores-table">
           <thead>
             <tr>
-              <td>Date</td>
-              <td>Score</td>
+              <th>Date</th>
+              <th>Score</th>
             </tr>
           </thead>
           <tbody id="tbody">
             <!-- dynamically add data here -->
           </tbody>
         </table>
-        <h3>Total Attempts:</h3>
-        <p id="total-attempts">
-          <!-- dynamically add data here -->
-        </p>
-      </div>
-      <div>
+      </section>
+
+      <section>
         <h3>Leaderboard</h3>
-        <table>
+        <table class="scores-table">
           <thead>
             <tr>
-              <td>Student</td>
-              <td>Score</td>
-              <td>Date</td>
+              <th>Student</th>
+              <th>Score</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody id="scoreboardTbody">
             <!-- dynamically add data here -->
           </tbody>
         </table>
-      </div>
-    </section>
-    <div>
-      <!-- <select>
-        <option value="1">Easy</option>
-        <option value="2">Hard</option>
-      </select> -->
-      <label for="difficultyToggle">Give me the hard questions!</label>
-      <input type="checkbox" id="difficultyToggle" />
-      <button id="startBtn">START GAME</button>
-      <button id="logoutBtn">LOG OUT</button>
-    </div>
-    <section id="message-container">
-      <p id="response-message"></p>
-    </section>
+      </section>
+
+      <section>
+        <h3>Attempts:</h3>
+        <p id="total-attempts">
+          <!-- dynamically add data here -->
+        </p>
+      </section>
+
+      <section id="start-section">
+        <div>
+          <label for="difficultyToggle">Give me the hard questions!</label>
+          <input type="checkbox" id="difficultyToggle" />
+        </div>
+        <button id="startBtn">START GAME</button>
+      </section>
+      <aside id="message-container">
+        <p id="response-message"></p>
+      </aside>
+    </main>
   </body>
 </html>
