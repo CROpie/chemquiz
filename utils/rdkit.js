@@ -1,4 +1,4 @@
-import { QUESTION_MARK } from './svgs.js'
+import { QUESTION_MARK, RENDER_ERROR } from './svgs.js'
 
 let RDKit
 
@@ -15,8 +15,8 @@ export function safelyGenerateStructure(smiles) {
   try {
     SVG = getRDKit().get_mol(smiles).get_svg()
   } catch (error) {
-    // RDKit can't render the mol structure therefore can't render the chemical because it is a faulty structure
-    SVG = QUESTION_MARK
+    // RDKit can't generate the mol structure therefore can't render the chemical because it is a faulty structure
+    SVG = RENDER_ERROR
   }
 
   return SVG

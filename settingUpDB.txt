@@ -1,0 +1,21 @@
+Open mariadb or mysql:
+
+CREATE DATABASE Chemquiz
+
+Populate the database by either manually entering the SQL queries in populatedatabase.sql, 
+or by running the following command in the root directory of the chemquiz program:
+
+mariadb Chemquiz < populatedatabase.sql
+or
+mysql Chemquiz < populatedatabase.sql
+
+After adding the tables, check to see if the data matches these pictures:
+
+Modify settings.php file in the root directory of the chemquiz program, these settings depend on your personal mariadb / mysql settings
+
+<?php
+$host = 'localhost';
+$user = "<your username>";
+$pwd = "<your password>";
+$sql_db = "Chemquiz";
+?>

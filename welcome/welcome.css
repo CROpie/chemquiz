@@ -20,6 +20,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
+  background-color: #a6c7d4;
 }
 
 header {
@@ -65,10 +66,6 @@ section {
   padding: 1em;
   margin-bottom: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-main {
-  background-color: #a6c7d4;
 }
 
 h2 {
@@ -121,7 +118,7 @@ main {
   gap: 20px;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   main {
     grid-template-columns: 1fr;
   }

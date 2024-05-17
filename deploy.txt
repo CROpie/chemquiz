@@ -1,0 +1,16 @@
+To run in the background
+    php -S localhost:3001 &
+
+
+See what is currently running with 
+    ps aux
+
+Find php processes with
+    ps aux | grep php
+
+root@PurpleChem:~# ps aux | grep php
+root     2511546  0.0  0.9 201476  9192 ?        S    May08   0:42 php -S localhost:3301
+root     2511597  0.0  1.3 201752 13016 ?        S    May08   0:50 php -S localhost:3001
+
+kill 251597
+

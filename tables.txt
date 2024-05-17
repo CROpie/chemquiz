@@ -89,3 +89,8 @@ SELECT Users.userId, Users.username, Scores.attemptDate, max(Scores.score) AS to
                 GROUP BY Users.userId, Users.username
                 ORDER BY topScore
                 LIMIT 5;"
+
+Selecting multiple specific questions for demo
+SELECT *
+FROM ReactionQ
+WHERE ReactionId = "14" OR ReactionId = "18" OR ReactionId = "19";

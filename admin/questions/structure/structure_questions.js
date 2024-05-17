@@ -4,6 +4,11 @@ import { checkAuth } from '../../../utils/auth.js'
 
 /* VALIDATION */
 function validateQuestion(errObj, editData) {
+  // if no structure drawn
+  if (!editData.molecule) {
+    errObj.success = false
+    errObj.message += 'Please draw a structure.'
+  }
   // check if any of the 4 options are identical, by adding to a set
   // if the size of the set < 4, then there was a duplicate or they weren't filled out
   const answerAndQuestions = new Set()
@@ -267,17 +272,12 @@ function initCurrentSession() {
   const structureQList = document.getElementById('existing-structureQ-list')
 
   // get data from input fields, send to submit function
+  // in the case of a new question, editRow = "new"
   function collectAndSubmit() {
     // make a copy of reaction data object so no mutation
     let modifiedData = { ...editData }
 
     const jsmeApplet = getJsmeApplet()
-
-    // don't allow submit if no structure
-    if (!jsmeApplet.smiles()) {
-      document.getElementById('response-message').textContent = 'Please draw a structure.'
-      return
-    }
 
     // structureId will be undefined when submitting a new question
     // but will have an id for modifying an existing question

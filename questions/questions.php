@@ -35,8 +35,6 @@ function handlePost($conn, $response) {
     $isDifficult = sanitise_input($_GET["isDifficult"]);
     $difficulty = $isDifficult === "true" ? "1" : "0";
 
-    // $noReactionQs = 2;
-    // $noStructureQs = 2;
     $noReactionQs = 0;
     $noStructureQs = 0;
 
@@ -53,17 +51,19 @@ function handlePost($conn, $response) {
 
     if ($structureQs === false) {
         $response["message"] = "Something went wrong when getting the questions from the database.";
+        return $response;
     }
 
     // add reaction Qs to data array
     $reactionQs = queryForReactionQuestions($conn, $data, $difficulty, $noReactionQs);
 
-    // create an array which will store all the questions retrieved from the database
-    $data = array_merge($structureQs, $reactionQs);
-
     if ($reactionQs === false) {
         $response["message"] = "Something went wrong when getting the questions from the database.";
+        return $response;
     }
+
+    // create an array which will store all the questions retrieved from the database
+    $data = array_merge($structureQs, $reactionQs);
 
     $response["success"] = true;
     $response["data"] = $data;

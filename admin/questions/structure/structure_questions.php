@@ -104,7 +104,11 @@ function handlePutData($conn, $sql_table, $response) {
 
     $query = '';
 
-    if ($structureId) {
+    if (!$structureId) {
+        $query = "INSERT INTO $sql_table (molecule, answer, incorrect1, incorrect2, incorrect3, difficulty)
+        VALUES
+        ('$molecule','$answer','$incorrect1','$incorrect2','$incorrect3','$difficulty')";
+    } else {
         $query = "UPDATE $sql_table
         SET 
         molecule = '$molecule',
@@ -114,11 +118,23 @@ function handlePutData($conn, $sql_table, $response) {
         incorrect3 = '$incorrect3',
         difficulty = '$difficulty'
         WHERE structureId = $structureId";
-    } else {
-        $query = "INSERT INTO $sql_table (molecule, answer, incorrect1, incorrect2, incorrect3, difficulty)
-        VALUES
-        ('$molecule','$answer','$incorrect1','$incorrect2','$incorrect3','$difficulty')";
     }
+
+    // if ($structureId) {
+    //     $query = "UPDATE $sql_table
+    //     SET 
+    //     molecule = '$molecule',
+    //     answer = '$answer',
+    //     incorrect1 = '$incorrect1',
+    //     incorrect2 = '$incorrect2',
+    //     incorrect3 = '$incorrect3',
+    //     difficulty = '$difficulty'
+    //     WHERE structureId = $structureId";
+    // } else {
+    //     $query = "INSERT INTO $sql_table (molecule, answer, incorrect1, incorrect2, incorrect3, difficulty)
+    //     VALUES
+    //     ('$molecule','$answer','$incorrect1','$incorrect2','$incorrect3','$difficulty')";
+    // }
 
     $result = mysqli_query($conn, $query);
 

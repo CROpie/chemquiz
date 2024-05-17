@@ -301,53 +301,38 @@ function renderReadOnly(session, rData) {
   let template = `
       <div class="reaction-question">
         <div class="svg-container">${reactantSVG ? reactantSVG : ''}</div>
-
         ${reagentSVG ? `<div id="plus-container">${PLUS_SVG}</div>` : ''}
-
         <div class="svg-container">${reagentSVG ? reagentSVG : ''}</div>
-
         <div class="reaction-conditions-container">
-
         <div class="spacer">.</div>
         <div class="spacer">.</div>
-
         ${
           rData.catalyst
             ? `<div>${convertToChemicalFormula(rData.catalyst)}</div>`
             : `<div class="spacer">.</div>`
         }
           <div id="arrow-container">${ARROW_SVG}</div>
-
         ${
           rData.solvent
             ? `<div>${convertToChemicalFormula(rData.solvent)}</div>`
             : `<div class="spacer">.</div>`
         }
-
         ${
           rData.temperature
             ? `<div>${rData.temperature + ' °C'}</div>`
             : `<div class="spacer">.</div>`
         }
-
         ${rData.time ? `<div>${rData.time + ' h'}</div>` : `<div class="spacer">.</div>`}
-
-
         </div>
-
         <div class="svg-container">${productSVG ? productSVG : 'Product'}</div>
-        
       </div>
-
       ${rData.difficulty === '1' ? '<p>Hard</p>' : ''}
-
       <div class="buttons-container">
         <button id="${rData.reactionId}-editBtn">Edit</button>
         <button id="${rData.reactionId}-submitBtn" disabled>Submit</button>
         <button id="${rData.reactionId}-deleteBtn">Delete</button>
       </div>
   `
-
   const newLiItem = document.getElementById(`${rData.reactionId}-reactionQ-container`)
 
   newLiItem.innerHTML = template
